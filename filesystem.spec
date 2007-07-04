@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	2.1.8
-Release:	%mkrel 5
+Release:	%mkrel 6
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -66,14 +66,6 @@ end
 mkdir_missing("/mnt/disk")
 mkdir_missing("/media/floppy")
 mkdir_missing("/media/cdrom")
-
-%triggerun -- filesystem < 2.1.8
-# only on upgrade we keep /usr/lib/X11 and /usr/X11R6/lib/X11 linked together
-# on install, /usr/X11R6/lib/X11 will be a directory
-if rm -f /usr/%{_lib}/X11 && mv /usr/X11R6/lib/X11 /usr/%{_lib} 2>/dev/null; then
-    echo "/usr/lib/X11 is no more a symlink, keeping /usr/X11R6/lib/X11 linked to it for upgrade"
-    ln -s ../../%{_lib}/X11 /usr/X11R6/lib/X11
-fi
 
 %files
 %defattr(0755,root,root)
