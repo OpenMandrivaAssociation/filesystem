@@ -1,6 +1,6 @@
 Name:		filesystem
-Version:	2.1.8
-Release:	%mkrel 6
+Version:	2.1.9
+Release:	%mkrel 1
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -44,7 +44,7 @@ mkdir -p %{buildroot}/%{_prefix}/lib/gcc-lib
 mkdir -p usr/local/{bin,doc,etc,games,lib,%{_lib},sbin,src,libexec,include}
 mkdir -p usr/local/share/{man/man{1,2,3,4,5,6,7,8,9,n},info}
 
-mkdir -p var/{local,log,nis,preserve,run,lib}
+mkdir -p var/{local,log,nis,preserve,run,lib,empty}
 mkdir -p var/spool/{mail,lpd}
 mkdir -p var/lib/{games,misc}
 mkdir -p var/{tmp,db,cache/man,opt,games,yp}
@@ -91,6 +91,7 @@ mkdir_missing("/media/cdrom")
 /var/db
 /var/lib
 /var/local
+/var/empty
 %dir %attr(775,root,root) /var/lock
 /var/lock/subsys
 /var/cache
