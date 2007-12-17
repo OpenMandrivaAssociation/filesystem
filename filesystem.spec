@@ -6,7 +6,6 @@ License:	Public Domain
 Group:		System/Base
 URL:		http://www.mandrivalinux.com/
 Requires:	setup
-Buildroot:	%{_tmppath}/%{name}-%{version}
 
 %description
 The filesystem package is one of the basic packages that is installed on
