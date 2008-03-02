@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	2.1.9
-Release:	%mkrel 2
+Release:	%mkrel 3
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -92,7 +92,7 @@ mkdir_missing("/media/cdrom")
 /var/lib
 /var/local
 /var/empty
-%dir %attr(775,root,root) /var/lock
+%dir %attr(775,root,uucp) /var/lock
 /var/lock/subsys
 /var/cache
 /var/log
