@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	2.1.9
-Release:	%mkrel 3
+Release:	%mkrel 4
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -55,17 +55,6 @@ ln -snf spool/mail var/mail
 
 %clean
 rm -rf %{buildroot}
-
-%post -p <lua>
-function mkdir_missing(dir)
-    if posix.stat(dir) == nil then 
-        posix.mkdir(dir)
-    end
-end
-
-mkdir_missing("/mnt/disk")
-mkdir_missing("/media/floppy")
-mkdir_missing("/media/cdrom")
 
 %files
 %defattr(0755,root,root)
