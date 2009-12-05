@@ -1,11 +1,10 @@
 Name:		filesystem
 Version:	2.1.9
-Release:	%mkrel 7
+Release:	%mkrel 8
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
 URL:		http://www.mandrivalinux.com/
-Requires:	setup
 Buildroot:	%{_tmppath}/%{name}-%{version}
 
 %description
