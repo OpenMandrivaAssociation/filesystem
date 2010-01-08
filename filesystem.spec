@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	2.1.9
-Release:	%mkrel 8
+Release:	%mkrel 9
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -29,6 +29,7 @@ mkdir -p %{_lib}
 mkdir -p %{buildroot}%{_prefix}/{etc,src,lib}
 mkdir -p %{buildroot}/{%{_bindir},%{_libdir},%{_includedir},%{_sbindir},%{_datadir}}
 mkdir -p %{buildroot}/%{_datadir}/{misc,pixmaps,applications,dict,doc,empty,fonts}
+mkdir -p %{buildroot}/%{_datadir}/color/{icc,cmms,settings}
 
 # man
 mkdir -p %{buildroot}/%{_mandir}/man{1,2,3,4,5,6,7,8,9,n}
