@@ -14,7 +14,7 @@ for a Linux operating system, including the correct permissions for the
 directories.
 
 %install
-mkdir %{buildroot}
+mkdir -p %{buildroot}
 
 cd %{buildroot}
 
