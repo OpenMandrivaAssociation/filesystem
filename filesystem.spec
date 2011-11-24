@@ -1,11 +1,11 @@
 Name:		filesystem
 Version:	2.1.9
-Release:	%mkrel 11
+Release:	12
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
 URL:		http://www.mandrivalinux.com/
-Buildroot:	%{_tmppath}/%{name}-%{version}
+Requires(pre):	setup
 
 %description
 The filesystem package is one of the basic packages that is installed on
@@ -52,9 +52,6 @@ mkdir -p var/lock/subsys
 
 ln -snf ../var/tmp usr/tmp
 ln -snf spool/mail var/mail
-
-%clean
-rm -rf %{buildroot}
 
 %files
 %defattr(0755,root,root)
