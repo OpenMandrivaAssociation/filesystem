@@ -19,7 +19,7 @@ mkdir -p %{buildroot}
 cd %{buildroot}
 
 mkdir -p mnt media bin boot 
-mkdir -p opt proc root sbin /srv sys tmp
+mkdir -p opt proc root sbin srv sys tmp
 mkdir -p home initrd 
 mkdir -p lib/modules
 
