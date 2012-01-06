@@ -15,6 +15,10 @@ a Mandriva Linux system.  Filesystem  contains the basic directory layout
 for a Linux operating system, including the correct permissions for the
 directories.
 
+%prep
+
+%build
+
 %install
 mkdir -p %{buildroot}
 
