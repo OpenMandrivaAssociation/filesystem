@@ -6,6 +6,7 @@ License:	Public Domain
 Group:		System/Base
 URL:		http://www.mandrivalinux.com/
 Requires(pre):	setup
+Source0:	filesystem.rpmlintrc
 
 %description
 The filesystem package is one of the basic packages that is installed on
