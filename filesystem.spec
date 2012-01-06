@@ -7,7 +7,6 @@ Group:		System/Base
 URL:		http://www.mandrivalinux.com/
 Requires(pre):	setup
 Source0:	filesystem.rpmlintrc
-BuildArch:	noarch
 
 %description
 The filesystem package is one of the basic packages that is installed on
