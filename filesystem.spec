@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	2.1.9
-Release:	13
+Release:	14
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -49,8 +49,8 @@ mkdir -p %{buildroot}/%{_prefix}/lib/gcc-lib
 mkdir -p usr/local/{bin,doc,etc,games,lib,%{_lib},sbin,src,libexec,include}
 mkdir -p usr/local/share/{man/man{1,2,3,4,5,6,7,8,9,n},info}
 
-mkdir -p var/{local,log,nis,preserve,run,lib,empty}
-mkdir -p var/spool/{mail,lpd}
+mkdir -p var/{adm,local,log,nis,preserve,run,lib,empty}
+mkdir -p var/spool/{ldp,mail,news,uucp}
 mkdir -p var/lib/{games,misc}
 mkdir -p var/{tmp,db,cache/man,opt,games,yp}
 mkdir -p var/lock/subsys
@@ -80,6 +80,7 @@ ln -snf spool/mail var/mail
 %attr(1777,root,root) /tmp
 %{_prefix}
 %dir /var
+/var/adm
 /var/db
 /var/lib
 /var/local
@@ -97,7 +98,7 @@ ln -snf spool/mail var/mail
 %attr(0755,root,daemon) %dir /var/spool/lpd
 %attr(775,root,mail) /var/spool/mail
 %attr(1777,root,root) /var/tmp
+%attr(775,root,news) /var/spool/news
+%attr(775,root,uucp) /var/spool/uucp
 /var/yp
-
-
 
