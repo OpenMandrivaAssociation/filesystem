@@ -95,7 +95,7 @@ ln -snf spool/mail var/mail
 /var/preserve
 /var/run
 %dir /var/spool
-%attr(0755,root,daemon) %dir /var/spool/lpd
+%dir %attr(0755,root,daemon) /var/spool/lpd
 %attr(775,root,mail) /var/spool/mail
 %attr(1777,root,root) /var/tmp
 %attr(775,root,news) /var/spool/news
