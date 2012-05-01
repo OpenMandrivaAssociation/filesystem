@@ -50,7 +50,7 @@ mkdir -p usr/local/{bin,doc,etc,games,lib,%{_lib},sbin,src,libexec,include}
 mkdir -p usr/local/share/{man/man{1,2,3,4,5,6,7,8,9,n},info}
 
 mkdir -p var/{adm,local,log,nis,preserve,run,lib,empty}
-mkdir -p var/spool/{ldp,mail,news,uucp}
+mkdir -p var/spool/{lpd,mail,news,uucp}
 mkdir -p var/lib/{games,misc}
 mkdir -p var/{tmp,db,cache/man,opt,games,yp}
 mkdir -p var/lock/subsys
