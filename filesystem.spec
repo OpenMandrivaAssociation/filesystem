@@ -48,6 +48,7 @@ mkdir -p %{buildroot}/%{_prefix}/lib/gcc-lib
 
 mkdir -p usr/local/{bin,doc,etc,games,lib,%{_lib},sbin,src,libexec,include}
 mkdir -p usr/local/share/{man/man{1,2,3,4,5,6,7,8,9,n},info}
+mkdir -p usr/share/ppd
 
 mkdir -p var/{adm,local,log,nis,preserve,run,lib,empty}
 mkdir -p var/spool/{lpd,mail,news,uucp}
