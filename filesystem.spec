@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	2.1.9
-Release:	14
+Release:	15
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -23,7 +23,7 @@ mkdir -p %{buildroot}
 
 cd %{buildroot}
 
-mkdir -p mnt media bin boot 
+mkdir -p mnt media bin boot dev
 mkdir -p opt proc root sbin srv sys tmp
 mkdir -p home initrd 
 mkdir -p lib/modules
@@ -61,6 +61,7 @@ ln -snf spool/mail var/mail
 %files
 %defattr(0755,root,root)
 /bin
+/dev
 /boot
 /etc
 /home
