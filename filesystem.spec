@@ -28,7 +28,7 @@ mkdir -p opt proc root sbin srv sys tmp
 mkdir -p home initrd 
 mkdir -p lib/modules
 
-mkdir -p %{buildroot}%{_sysconfdir}/{profile.d,skel,security,ssl,sysconfig,default,opt}
+mkdir -p %{buildroot}%{_sysconfdir}/{profile.d,skel,security,ssl,sysconfig,default,opt,xinetd.d}
 mkdir -p %{_lib}
 
 mkdir -p %{buildroot}%{_prefix}/{etc,src,lib}
