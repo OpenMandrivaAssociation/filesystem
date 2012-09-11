@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	2.1.9
-Release:	15
+Release:	16
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -25,15 +25,15 @@ cd %{buildroot}
 
 mkdir -p mnt media bin boot dev
 mkdir -p opt proc root sbin srv sys tmp
-mkdir -p home initrd 
+mkdir -p home initrd
 mkdir -p lib/modules
 
-mkdir -p %{buildroot}%{_sysconfdir}/{profile.d,skel,security,ssl,sysconfig,default,opt,xinetd.d}
+mkdir -p %{buildroot}%{_sysconfdir}/{profile.d,security,ssl,sysconfig,default,opt,xinetd.d}
 mkdir -p %{_lib}
 
 mkdir -p %{buildroot}%{_prefix}/{etc,src,lib}
 mkdir -p %{buildroot}/{%{_bindir},%{_libdir},%{_includedir},%{_sbindir},%{_datadir}}
-mkdir -p %{buildroot}/%{_datadir}/{misc,pixmaps,applications,dict,doc,empty,fonts}
+mkdir -p %{buildroot}/%{_datadir}/{misc,pixmaps,applications,desktop-directories,dict,doc,empty,fonts}
 mkdir -p %{buildroot}/%{_datadir}/color/{icc,cmms,settings}
 
 # man
@@ -47,6 +47,7 @@ mkdir -p %{buildroot}/%{_libdir}/gcc-lib
 mkdir -p %{buildroot}/%{_prefix}/lib/gcc-lib
 
 mkdir -p usr/local/{bin,doc,etc,games,lib,%{_lib},sbin,src,libexec,include}
+mkdir -p usr/local/share/{applications,desktop-directories}
 mkdir -p usr/local/share/{man/man{1,2,3,4,5,6,7,8,9,n},info}
 mkdir -p usr/share/ppd
 
@@ -103,4 +104,3 @@ ln -snf spool/mail var/mail
 %attr(775,root,news) /var/spool/news
 %attr(775,root,uucp) /var/spool/uucp
 /var/yp
-
