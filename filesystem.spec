@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	2.1.9
-Release:	21
+Release:	22
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
