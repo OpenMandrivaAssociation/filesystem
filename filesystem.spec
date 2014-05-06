@@ -45,6 +45,7 @@ mkdir -p %{buildroot}{%{_libdir},%{_prefix}/lib}/games
 
 mkdir -p %{buildroot}%{_libdir}/gcc-lib
 mkdir -p %{buildroot}%{_prefix}/lib/gcc-lib
+mkdir -p %{buildroot}%{_prefix}/lib/debug/{bin,lib,%{_lib},.dwz,usr,sbin}
 
 mkdir -p %{buildroot}%{_prefix}/local/{bin,doc,etc,games,lib,%{_lib},sbin,src,libexec,include}
 mkdir -p %{buildroot}%{_prefix}/local/share/{applications,desktop-directories}
@@ -78,6 +79,13 @@ ln -snf spool/mail %{buildroot}%{_var}/mail
 /proc
 /srv
 %attr(555,root,root) /sys
+%dir /usr/lib/debug
+%ghost /usr/lib/debug/bin
+%ghost /usr/lib/debug/lib
+%ghost /usr/lib/debug/%{_lib}
+%ghost /usr/lib/debug/usr
+%ghost /usr/lib/debug/usr/.dwz
+%ghost /usr/lib/debug/sbin
 %attr(750,root,root) /root
 /sbin
 %attr(1777,root,root) /tmp
