@@ -28,6 +28,9 @@ mkdir -p %{buildroot}/lib/modules
 
 mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},profile.d,security,skel,ssl,sysconfig,xdg,xinetd.d,X11/{applnk,fontpath.d}}
 
+%ifarch x86_64
+mkdir -p %{buildroot}{%{_prefix},/libx32}
+%endif
 mkdir -p %{buildroot}{/%{_lib},%{_libdir},%{_usrsrc},%{_usrsrc}/debug}
 
 
@@ -90,6 +93,9 @@ ln -snf spool/mail %{buildroot}%{_var}/mail
 %dir /lib/modules
 %if "%{_lib}" == "lib64"
 %dir /%{_lib}
+%ifarch x86_64
+%dir /libx32
+%endif
 %endif
 %dir /media
 %dir /mnt
@@ -117,6 +123,9 @@ ln -snf spool/mail %{buildroot}%{_var}/mail
 %dir %attr(555,root,root) %{_prefix}/lib/sse2
 %if "%{_lib}" == "lib64"
 %dir %attr(555,root,root) %{_prefix}/%{_lib}
+%ifarch x86_64
+%dir %{_prefix}/libx32
+%endif
 %else
 %dir %attr(555,root,root) %{_prefix}/lib/tls
 %dir %attr(555,root,root) %{_prefix}/lib/X11
