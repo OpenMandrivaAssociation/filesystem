@@ -77,7 +77,7 @@ ln -snf spool/mail %{buildroot}%{_var}/mail
 %dir /opt
 /proc
 /srv
-/sys
+%attr(555,root,root) /sys
 %attr(750,root,root) /root
 /sbin
 %attr(1777,root,root) /tmp
