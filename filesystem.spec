@@ -7,6 +7,12 @@ Group:		System/Base
 URL:		http://www.mandrivalinux.com/
 Requires(pre):	setup >= 2.8.2
 Source0:	filesystem.rpmlintrc
+# Raw source1 URL: https://fedorahosted.org/filesystem/browser/lang-exceptions?format=raw
+Source1:	https://fedorahosted.org/filesystem/browser/lang-exceptions
+Source2:	iso_639.sed
+Source3:	iso_3166.sed
+BuildRequires:	iso-codes
+
 
 %description
 The filesystem package is one of the basic packages that is installed on
@@ -15,10 +21,12 @@ for a Linux operating system, including the correct permissions for the
 directories.
 
 %prep
+%setup -Tcn %{name}-%{version}
 
 %build
 
 %install
+rm -f filelist
 
 mkdir -p %{buildroot}/{mnt,media,bin,boot,dev}
 mkdir -p %{buildroot}/{opt,proc,root,run,sbin,srv,sys,tmp}
@@ -37,16 +45,6 @@ mkdir -p %{buildroot}{/%{_lib},%{_libdir},%{_usrsrc},%{_usrsrc}/debug}
 mkdir -p %{buildroot}%{_prefix}/{etc,lib}
 mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir},%{_sbindir},%{_datadir}}
 mkdir -p %{buildroot}%{_datadir}/{aclocal,appdata,applications,augeas,backgrounds,color/{icc,cmms,settings},desktop-directories,dict,doc,fonts,empty,fontsmisc,games,ghostscript{,/conf.d},gnome,icons,idl,mime-info,misc,omf,pixmaps,ppd,sounds,themes,xsessions,X11}
-
-# man
-for i in seq 1 9; do
-	mkdir -p %{buildroot}%{_mandir}/man$i{,x}
-done
-mkdir -p %{buildroot}%{_mandir}/mann
-
-for i in 0 1 3; do
-	mkdir -p %{buildroot}%{_mandir}/man$ip
-done
 mkdir -p %{buildroot}%{_infodir}
 # games
 mkdir -p %{buildroot}{%{_gamesbindir},%{_gamesdatadir}}
@@ -59,8 +57,8 @@ mkdir -p %{buildroot}%{_libexecdir}
 
 mkdir -p %{buildroot}%{_prefix}/local/{bin,doc,etc,games,lib,%{_lib},sbin,src,libexec,include}
 mkdir -p %{buildroot}%{_prefix}/local/share/{applications,desktop-directories}
-for i in seq 1 9; do
-	mkdir -p %{buildroot}%{_prefix}/local/share/man/man$i{,x}
+for i in $(seq 1 9); do
+	mkdir -p -m755 %{buildroot}%{_prefix}/local/share/man/man${i}{,x}
 done
 mkdir -p %{buildroot}%{_prefix}/local/share/man/mann
 mkdir -p %{buildroot}%{_prefix}/local/share/info
@@ -74,10 +72,69 @@ mkdir -p %{buildroot}%{_var}/{db,cache/man,opt,games,gopher,yp}
 mkdir -p %{buildroot}%{_var}/lock/subsys
 
 
-ln -snf ../%{_var}/tmp %{buildroot}%{_prefix}/tmp
-ln -snf spool/mail %{buildroot}%{_var}/mail
+ln -sf %{_var}/tmp %{buildroot}%{_prefix}/tmp
+ln -sf %{_var}/spool/mail %{buildroot}%{_var}/mail
 
-%files
+sed -n -f %{SOURCE2} %{_datadir}/xml/iso-codes/iso_639.xml \
+  > iso_639.tab
+sed -n -f %{SOURCE3} %{_datadir}/xml/iso-codes/iso_3166.xml \
+  > iso_3166.tab
+
+grep -v "^$" iso_639.tab | grep -v "^#" | while read a b c d ; do
+    [[ "$d" =~ "^Reserved" ]] && continue
+    [[ "$d" =~ "^No linguistic" ]] && continue
+
+    locale=$c
+    if [ "$locale" = "XX" ]; then
+        locale=$b
+    fi
+    echo "%lang(${locale})	%{_localedir}/${locale}" >> filelist
+    echo "%lang(${locale}) %ghost %config(missingok) %{_mandir}/${locale}" >>filelist
+done
+cat %{SOURCE1} | grep -v "^#" | grep -v "^$" | while read loc ; do
+    locale=$loc
+    locality=
+    special=
+    [[ "$locale" =~ "@" ]] && locale=${locale%%%%@*}
+    [[ "$locale" =~ "_" ]] && locality=${locale##*_}
+    [[ "$locality" =~ "." ]] && locality=${locality%%%%.*}
+    [[ "$loc" =~ "_" ]] || [[ "$loc" =~ "@" ]] || special=$loc
+
+    # If the locality is not official, skip it
+    if [ -n "$locality" ]; then
+        grep -q "^$locality" iso_3166.tab || continue
+    fi
+    # If the locale is not official and not special, skip it
+    if [ -z "$special" ]; then
+        egrep -q "[[:space:]]${locale%%_*}[[:space:]]" \
+           iso_639.tab || continue
+    fi
+    echo "%lang(${locale})	%{_localedir}/${loc}" >> filelist
+    echo "%lang(${locale})  %ghost %config(missingok) %{_mandir}/${loc}" >> filelist
+done
+
+cat filelist | grep "locale" | while read a b ; do
+    mkdir -p -m755 %{buildroot}${b}/LC_MESSAGES
+done
+
+cat filelist | grep "/share/man" | while read a b c d; do
+    for i in $(seq 1 9); do
+	mkdir -p -m755 %{buildroot}${d}/man${i}{,x}
+    done
+    for i in 0p 1p 3p n; do
+	mkdir -p -m755 %{buildroot}${d}/man${i}
+    done
+done
+
+# non-localized man pages
+for i in $(seq 1 9); do
+    mkdir -p -m755 %{buildroot}%{_mandir}/man${i}{,x}
+done
+for i in 0p 1p 3p n; do
+    mkdir -p -m755 %{buildroot}%{_mandir}/man${i}
+done
+
+%files -f filelist
 %defattr(0755,root,root,-)
 %dir %attr(555,root,root) /
 %dir /bin
@@ -159,8 +216,10 @@ ln -snf spool/mail %{buildroot}%{_var}/mail
 %dir %{_prefix}/local/share/applications
 %dir %{_prefix}/local/share/desktop-directories
 %dir %{_prefix}/local/share/
-%dir %{_prefix}/local/share/man
-%dir %{_prefix}/local/share/man/*
+%dir %{_prefix}/local/share/man/
+%dir %{_prefix}/local/share/man/man[1-9]
+%dir %{_prefix}/local/share/man/man[1-9]x
+%dir %{_prefix}/local/share/man/mann
 %dir %{_prefix}/local/share/info
 %dir %attr(555,root,root) %{_sbindir}
 %dir %{_datadir}
@@ -200,7 +259,10 @@ ln -snf spool/mail %{buildroot}%{_var}/mail
 %dir %{_localstatedir}/lib/rpm-state
 %dir %{_logdir}
 %dir %{_mandir}
-%dir %{_mandir}/man*
+%dir %{_mandir}/man[013]p
+%dir %{_mandir}/man[1-9]
+%dir %{_mandir}/man[1-9]x
+%dir %{_mandir}/mann
 %dir %{_usrsrc}
 %dir %{_usrsrc}/debug
 %dir %{_prefix}/tmp
@@ -213,7 +275,7 @@ ln -snf spool/mail %{buildroot}%{_var}/mail
 %dir %{_var}/games
 %dir %{_var}/gopher
 %dir %{_var}/local
-%dir %attr(775,root,uucp) /var/lock
+%dir %attr(775,root,uucp) %{_var}/lock
 %dir %{_var}/lock/subsys
 %dir %{_var}/mail
 %dir %{_var}/nis
@@ -223,7 +285,7 @@ ln -snf spool/mail %{buildroot}%{_var}/mail
 %dir %{_var}/spool
 %dir %attr(755,root,root) %{_var}/spool/lpd
 %dir %attr(775,root,mail) %{_var}/spool/mail
-%dir %attr(775,root,news) /var/spool/news
+%dir %attr(775,root,news) %{_var}/spool/news
 %dir %attr(775,root,uucp) %{_var}/spool/uucp
 %dir %attr(1777,root,root) %{_var}/tmp
 %dir %{_var}/yp
