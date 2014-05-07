@@ -5,7 +5,7 @@ Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
 URL:		http://www.mandrivalinux.com/
-Requires(pre):	setup
+Requires(pre):	setup >= 2.8.2
 Source0:	filesystem.rpmlintrc
 
 %description
