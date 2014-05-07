@@ -29,7 +29,7 @@ mkdir -p %{buildroot}/lib/modules
 mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},profile.d,security,skel,ssl,sysconfig,xdg,xinetd.d,X11/{applnk,fontpath.d}}
 
 %ifarch x86_64
-mkdir -p %{buildroot}{%{_prefix},/libx32}
+mkdir -p %{buildroot}{%{_prefix},{/local,}/libx32}
 %endif
 mkdir -p %{buildroot}{/%{_lib},%{_libdir},%{_usrsrc},%{_usrsrc}/debug}
 
@@ -139,6 +139,9 @@ ln -snf spool/mail %{buildroot}%{_var}/mail
 %dir %{_prefix}/local/games
 %dir %{_prefix}/local/lib
 %dir %{_prefix}/local/%{_lib}
+%ifarch x86_64
+%dir %{_prefix}/local/libx32
+%endif
 %dir %{_prefix}/local/sbin
 %dir %{_prefix}/local/src
 %dir %{_prefix}/local/libexec
