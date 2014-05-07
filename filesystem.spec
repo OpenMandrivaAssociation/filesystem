@@ -71,9 +71,8 @@ mkdir -p %{buildroot}%{_localstatedir}/lib/{games,misc,rpm-state}
 mkdir -p %{buildroot}%{_var}/{db,cache/man,opt,games,gopher,yp}
 mkdir -p %{buildroot}%{_var}/lock/subsys
 
-
-ln -sf %{_var}/tmp %{buildroot}%{_prefix}/tmp
-ln -sf %{_var}/spool/mail %{buildroot}%{_var}/mail
+ln -srf %{buildroot}%{_var}/tmp %{buildroot}%{_prefix}/tmp
+ln -srf %{buildroot}%{_var}/spool/mail %{buildroot}%{_var}/mail
 
 sed -n -f %{SOURCE2} %{_datadir}/xml/iso-codes/iso_639.xml \
   > iso_639.tab
