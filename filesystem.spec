@@ -5,7 +5,10 @@ Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
 URL:		http://www.mandrivalinux.com/
+# attempt at fixing up screwup by others cluelessly trying to merge this
+# package with setup package
 Requires(pre):	setup >= 2.8.2
+Conflicts:	setup < 2.8.2
 Source0:	filesystem.rpmlintrc
 # Raw source1 URL: https://fedorahosted.org/filesystem/browser/lang-exceptions?format=raw
 Source1:	https://fedorahosted.org/filesystem/browser/lang-exceptions
@@ -310,7 +313,6 @@ done
 %dir %{_var}/nis
 %dir %{_var}/opt
 %dir %{_var}/preserve
-%dir %{_varrun}
 %dir %{_var}/spool
 %dir %attr(755,root,root) %{_var}/spool/lpd
 %dir %attr(775,root,mail) %{_var}/spool/mail
@@ -318,3 +320,4 @@ done
 %dir %attr(775,root,uucp) %{_var}/spool/uucp
 %dir %attr(1777,root,root) %{_tmppath}
 %dir %{_var}/yp
+%dir %{_varrun}
