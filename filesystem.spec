@@ -37,7 +37,7 @@ mkdir -p %{buildroot}/{home,initrd}
 mkdir -p %{buildroot}/lib/modules
 
 
-mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},profile.d,security,skel,ssl,sysconfig,xdg,xinetd.d,X11/{applnk,fontpath.d}}
+mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},security,skel,ssl,sysconfig,xdg,xinetd.d,X11/{applnk,fontpath.d}}
 
 %if "%{_lib}" == "lib64"
 mkdir -p %{buildroot}{/%{_lib},%{_libdir}}
@@ -171,7 +171,6 @@ done
 %dir %{_sysconfdir}/opt
 %dir %{_sysconfdir}/pki
 %dir %{_sysconfdir}/pm
-%dir %{_sysconfdir}/profile.d
 %dir %{_sysconfdir}/security
 %dir %{_sysconfdir}/ssl
 %dir %{_sysconfdir}/skel
