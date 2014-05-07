@@ -36,26 +36,49 @@ mkdir -p %{buildroot}/lib/modules
 
 mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},profile.d,security,skel,ssl,sysconfig,xdg,xinetd.d,X11/{applnk,fontpath.d}}
 
+%if "%{_lib}" == "lib64"
+mkdir -p %{buildroot}{/%{_lib},%{_libdir}}
+%endif
 %ifarch x86_64
 mkdir -p %{buildroot}{,%{_prefix},%{_prefix}/local}/libx32
 %endif
-mkdir -p %{buildroot}{/%{_lib},%{_libdir},%{_usrsrc},%{_usrsrc}/debug}
+mkdir -p %{buildroot}%{_usrsrc}{,/debug}
 
 
 mkdir -p %{buildroot}%{_prefix}/{etc,lib}
-mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir},%{_sbindir},%{_datadir}}
+mkdir -p %{buildroot}{%{_bindir},%{_includedir},%{_sbindir},%{_datadir}}
 mkdir -p %{buildroot}%{_datadir}/{aclocal,appdata,applications,augeas,backgrounds,color/{icc,cmms,settings},desktop-directories,dict,doc,fonts,empty,fontsmisc,games,ghostscript{,/conf.d},gnome,icons,idl,mime-info,misc,omf,pixmaps,ppd,sounds,themes,xsessions,X11}
 mkdir -p %{buildroot}%{_infodir}
 # games
 mkdir -p %{buildroot}{%{_gamesbindir},%{_gamesdatadir}}
-mkdir -p %{buildroot}{%{_libdir},%{_prefix}/lib}/games
+mkdir -p %{buildroot}%{_prefix}/lib/games
+%if "%{_lib}" == "lib64"
+mkdir -p %{buildroot}%{_libdir}/lib/games
+%endif
+
 
 mkdir -p %{buildroot}%{_libdir}/{gcc-lib,pm-utils/{module.d,power.d,sleep.d}}
 mkdir -p %{buildroot}%{_prefix}/lib/{gcc-lib,sse2,tls,sse2}
-mkdir -p %{buildroot}%{_prefix}/lib/debug/{bin,lib,%{_lib},usr/.dwz,sbin}
+# deprecated..?
+mkdir -p %{buildroot}%{_prefix}/lib/X11
+mkdir -p %{buildroot}%{_prefix}/lib/debug/{bin,lib,usr/.dwz,sbin}
+%if "%{_lib}" == "lib64"
+mkdir -p %{buildroot}%{_prefix}/lib/debug/%{_lib}
+%endif
+%ifarch x86_64
+mkdir -p %{buildroot}%{_prefix}/lib/debug/libx32
+%endif
+
 mkdir -p %{buildroot}%{_libexecdir}
 
-mkdir -p %{buildroot}%{_prefix}/local/{bin,doc,etc,games,lib,%{_lib},sbin,src,libexec,include}
+mkdir -p %{buildroot}%{_prefix}/local/{bin,doc,etc,games,lib,sbin,src,libexec,include}
+%if "%{_lib}" == "lib64"
+mkdir -p %{buildroot}%{_prefix}/local/%{_lib}
+%endif
+%ifarch x86_64
+mkdir -p %{buildroot}%{_prefix}/local/libx32
+%endif
+
 mkdir -p %{buildroot}%{_prefix}/local/share/{applications,desktop-directories}
 for i in $(seq 1 9); do
 	mkdir -p -m755 %{buildroot}%{_prefix}/local/share/man/man${i}{,x}
@@ -71,7 +94,7 @@ mkdir -p %{buildroot}%{_localstatedir}/lib/{games,misc,rpm-state}
 mkdir -p %{buildroot}%{_var}/{db,cache/man,opt,games,gopher,yp}
 mkdir -p %{buildroot}%{_var}/lock/subsys
 
-ln -srf %{buildroot}%{_var}/tmp %{buildroot}%{_prefix}/tmp
+ln -srf %{buildroot}%{_tmppath} %{buildroot}%{_prefix}/tmp
 ln -srf %{buildroot}%{_var}/spool/mail %{buildroot}%{_var}/mail
 
 sed -n -f %{SOURCE2} %{_datadir}/xml/iso-codes/iso_639.xml \
@@ -159,9 +182,9 @@ done
 %dir /lib/modules
 %if "%{_lib}" == "lib64"
 %dir /%{_lib}
+%endif
 %ifarch x86_64
 %dir /libx32
-%endif
 %endif
 %dir /media
 %dir /mnt
@@ -181,17 +204,22 @@ done
 %dir %{_prefix}/lib/debug
 %dir %{_prefix}/lib/debug/bin
 %dir %ghost %{_prefix}/lib/debug/lib
+%if "%{_lib}" == "lib64"
 %dir %ghost %{_prefix}/lib/debug/%{_lib}
+%endif
+%ifarch x86_64
+%dir %ghost %{_prefix}/lib/debug/libx32
+%endif
 %dir %ghost %{_prefix}/lib/debug/%{_prefix}
 %dir %ghost %{_prefix}/lib/debug/%{_prefix}/.dwz
 %dir %ghost %{_prefix}/lib/debug/sbin
 %dir %attr(555,root,root) %{_prefix}/lib/games
 %dir %attr(555,root,root) %{_prefix}/lib/sse2
+%ifarch x86_64
+%dir %attr(555,root,root) %{_prefix}/libx32
+%endif
 %if "%{_lib}" == "lib64"
 %dir %attr(555,root,root) %{_prefix}/%{_lib}
-%ifarch x86_64
-%dir %{_prefix}/libx32
-%endif
 %else
 %dir %attr(555,root,root) %{_prefix}/lib/tls
 %dir %attr(555,root,root) %{_prefix}/lib/X11
@@ -204,7 +232,9 @@ done
 %dir %{_prefix}/local/etc
 %dir %{_prefix}/local/games
 %dir %{_prefix}/local/lib
+%if "%{_lib}" == "lib64"
 %dir %{_prefix}/local/%{_lib}
+%endif
 %ifarch x86_64
 %dir %{_prefix}/local/libx32
 %endif
@@ -286,5 +316,5 @@ done
 %dir %attr(775,root,mail) %{_var}/spool/mail
 %dir %attr(775,root,news) %{_var}/spool/news
 %dir %attr(775,root,uucp) %{_var}/spool/uucp
-%dir %attr(1777,root,root) %{_var}/tmp
+%dir %attr(1777,root,root) %{_tmppath}
 %dir %{_var}/yp
