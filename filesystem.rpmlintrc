@@ -1,1 +1,3 @@
 addFilter("E: dir-or-file-in-usr-local")
+addFilter(".*cross-directory-hard-link.*")
+addFilter(".*non-standard-dir-perm.*")
