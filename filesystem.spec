@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	2.1.9
-Release:	22
+Release:	23
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -29,7 +29,7 @@ mkdir -p %{buildroot}/lib/modules
 mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},profile.d,security,skel,ssl,sysconfig,xdg,xinetd.d,X11/{applnk,fontpath.d}}
 
 %ifarch x86_64
-mkdir -p %{buildroot}{%{_prefix},{/local,}/libx32}
+mkdir -p %{buildroot}{,%{_prefix},%{_prefix}/local}/libx32
 %endif
 mkdir -p %{buildroot}{/%{_lib},%{_libdir},%{_usrsrc},%{_usrsrc}/debug}
 
@@ -39,7 +39,14 @@ mkdir -p %{buildroot}{%{_bindir},%{_libdir},%{_includedir},%{_sbindir},%{_datadi
 mkdir -p %{buildroot}%{_datadir}/{aclocal,appdata,applications,augeas,backgrounds,color/{icc,cmms,settings},desktop-directories,dict,doc,fonts,empty,fontsmisc,games,ghostscript{,/conf.d},gnome,icons,idl,mime-info,misc,omf,pixmaps,ppd,sounds,themes,xsessions,X11}
 
 # man
-mkdir -p %{buildroot}%{_mandir}/man{%(seq -s, 1 9),n}
+for i in seq 1 9; do
+	mkdir -p %{buildroot}%{_mandir}/man$i{,x}
+done
+mkdir -p %{buildroot}%{_mandir}/mann
+
+for i in 0 1 3; do
+	mkdir -p %{buildroot}%{_mandir}/man$ip
+done
 mkdir -p %{buildroot}%{_infodir}
 # games
 mkdir -p %{buildroot}{%{_gamesbindir},%{_gamesdatadir}}
@@ -52,7 +59,10 @@ mkdir -p %{buildroot}%{_libexecdir}
 
 mkdir -p %{buildroot}%{_prefix}/local/{bin,doc,etc,games,lib,%{_lib},sbin,src,libexec,include}
 mkdir -p %{buildroot}%{_prefix}/local/share/{applications,desktop-directories}
-mkdir -p %{buildroot}%{_prefix}/local/share/man/man{%(seq -s, 1 9),n}
+for i in seq 1 9; do
+	mkdir -p %{buildroot}%{_prefix}/local/share/man/man$i{,x}
+done
+mkdir -p %{buildroot}%{_prefix}/local/share/man/mann
 mkdir -p %{buildroot}%{_prefix}/local/share/info
 
 mkdir -p %{buildroot}%{_localedir}
@@ -150,7 +160,7 @@ ln -snf spool/mail %{buildroot}%{_var}/mail
 %dir %{_prefix}/local/share/desktop-directories
 %dir %{_prefix}/local/share/
 %dir %{_prefix}/local/share/man
-%dir %{_prefix}/local/share/man/man*
+%dir %{_prefix}/local/share/man/*
 %dir %{_prefix}/local/share/info
 %dir %attr(555,root,root) %{_sbindir}
 %dir %{_datadir}
