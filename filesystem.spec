@@ -193,7 +193,7 @@ done
 %dir /opt
 %dir %attr(555,root,root) /proc
 %dir %attr(550,root,root) /root
-%dir /run
+%dir %{_rundir}
 %dir /sbin
 %dir /srv
 %dir %attr(555,root,root) /sys
