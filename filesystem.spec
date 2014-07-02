@@ -1,13 +1,14 @@
 Name:		filesystem
 Version:	3.0
-Release:	2
+Release:	3
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
 URL:		http://www.mandrivalinux.com/
 # attempt at fixing up screwup by others cluelessly trying to merge this
 # package with setup package
-Requires(pre):	setup >= 2.8.2
+Requires(post):	setup >= 2.8.2
+Requires(pre):	%{dlopen_req nss_files}
 Source0:	filesystem.rpmlintrc
 # Raw source1 URL: https://fedorahosted.org/filesystem/browser/lang-exceptions?format=raw
 Source1:	https://fedorahosted.org/filesystem/browser/lang-exceptions
