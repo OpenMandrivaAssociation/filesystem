@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	3.0
-Release:	4
+Release:	5
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -158,6 +158,10 @@ done
 for i in 0p 1p 3p n; do
     mkdir -p -m755 %{buildroot}%{_mandir}/man${i}
 done
+
+%post -p <lua>
+posix.symlink("../run", "/var/run")
+posix.symlink("../run/lock", "/var/lock")
 
 %files -f filelist
 %defattr(0755,root,root,-)
