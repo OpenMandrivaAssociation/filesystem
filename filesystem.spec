@@ -8,7 +8,7 @@ URL:		http://www.mandrivalinux.com/
 # attempt at fixing up screwup by others cluelessly trying to merge this
 # package with setup package
 Requires(post):	setup >= 2.8.2
-Requires(pre):	%{dlopen_req nss_files}
+#Requires(pre):	%{dlopen_req nss_files}
 Source0:	filesystem.rpmlintrc
 # Raw source1 URL: https://fedorahosted.org/filesystem/browser/lang-exceptions?format=raw
 Source1:	https://fedorahosted.org/filesystem/browser/lang-exceptions
@@ -90,13 +90,15 @@ mkdir -p %{buildroot}%{_prefix}/local/share/man/mann
 mkdir -p %{buildroot}%{_prefix}/local/share/info
 
 mkdir -p %{buildroot}%{_localedir}
-mkdir -p %{buildroot}{%{_varrun},%{_logdir},%{_tmppath}}
+mkdir -p %{buildroot}{%{_logdir},%{_tmppath}}
 mkdir -p %{buildroot}%{_var}/{adm,gopher,local,nis,preserve,empty}
 mkdir -p %{buildroot}%{_var}/spool/{lpd,mail,news,uucp}
 mkdir -p %{buildroot}%{_localstatedir}/lib/{games,misc,rpm-state}
 mkdir -p %{buildroot}%{_var}/{db,cache/man,opt,games,gopher,yp}
-mkdir -p %{buildroot}%{_var}/lock/subsys
+mkdir -p %{buildroot}/run/lock
 
+ln -srf %{buildroot}/run %{buildroot}%{_var}/run
+ln -srf %{buildroot}/run/lock %{buildroot}%{_var}/lock
 ln -srf %{buildroot}%{_tmppath} %{buildroot}%{_prefix}/tmp
 ln -srf %{buildroot}%{_var}/spool/mail %{buildroot}%{_var}/mail
 
@@ -159,7 +161,7 @@ for i in 0p 1p 3p n; do
     mkdir -p -m755 %{buildroot}%{_mandir}/man${i}
 done
 
-%post -p <lua>
+%posttrans -p <lua>
 posix.symlink("../run", "/var/run")
 posix.symlink("../run/lock", "/var/lock")
 
@@ -198,6 +200,7 @@ posix.symlink("../run/lock", "/var/lock")
 %dir %attr(555,root,root) /proc
 %dir %attr(550,root,root) /root
 %dir %{_rundir}
+%dir %attr(775,root,uucp) /run/lock
 %dir /sbin
 %dir /srv
 %dir %attr(555,root,root) /sys
@@ -310,8 +313,7 @@ posix.symlink("../run/lock", "/var/lock")
 %dir %{_var}/games
 %dir %{_var}/gopher
 %dir %{_var}/local
-%dir %attr(775,root,uucp) %{_var}/lock
-%dir %{_var}/lock/subsys
+%dir %{_var}/lock
 %dir %{_var}/mail
 %dir %{_var}/nis
 %dir %{_var}/opt
