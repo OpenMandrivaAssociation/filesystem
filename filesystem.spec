@@ -1,10 +1,10 @@
 Name:		filesystem
 Version:	3.0
-Release:	6
+Release:	7
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
-URL:		http://www.mandrivalinux.com/
+URL:		%{disturl}
 # attempt at fixing up screwup by others cluelessly trying to merge this
 # package with setup package
 Requires(post):	setup >= 2.8.2
@@ -161,7 +161,18 @@ for i in 0p 1p 3p n; do
     mkdir -p -m755 %{buildroot}%{_mandir}/man${i}
 done
 
-%posttrans -p <lua>
+%pretrans -p <lua>
+vr = posix.stat("/var/run")
+if vr and vr.type ~= "link" then
+    os.rename("/var/run", "/var/run.old")
+end
+
+vl = posix.stat("/var/lock")
+if vl and vl.type ~= "link" then
+    os.rename("/var/lock", "/var/lock.old")
+end
+
+%post -p <lua>
 posix.symlink("../run", "/var/run")
 posix.symlink("../run/lock", "/var/lock")
 
