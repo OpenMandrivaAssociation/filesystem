@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	3.0
-Release:	8
+Release:	9
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -172,9 +172,19 @@ if vl and vl.type ~= "link" then
     os.rename("/var/lock", "/var/lock.old")
 end
 
+# (tpg) seems like arg=arg+1 for lua
 %post -p <lua>
-posix.symlink("../run", "/var/run")
-posix.symlink("../run/lock", "/var/lock")
+if arg[2] >= 2 then
+	vr = posix.stat("/var/run")
+	if vr and vr.type ~= "link" then
+		posix.symlink("../run", "/var/run")
+	end
+
+	vr = posix.stat("/var/lock")
+	if vr and vr.type ~= "link" then
+		posix.symlink("../run/lock", "/var/lock")
+	end
+end
 
 %files -f filelist
 %defattr(0755,root,root,-)
