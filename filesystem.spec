@@ -172,9 +172,10 @@ if vl and vl.type ~= "link" then
     os.rename("/var/lock", "/var/lock.old")
 end
 
-# (tpg) seems like arg=arg+1 for lua
+
 %post -p <lua>
-if arg[2] >= 2 then
+--(tpg) seems like arg=arg+1 for lua
+if arg[2] >= 2 then 
 	vr = posix.stat("/var/run")
 	if vr and vr.type ~= "link" then
 		posix.symlink("../run", "/var/run")
