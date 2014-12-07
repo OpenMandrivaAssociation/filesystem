@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	3.0
-Release:	9
+Release:	10
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
