@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	3.0
-Release:	12
+Release:	14
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -172,7 +172,7 @@ if vl and vl.type ~= "link" then
 end
 
 
-%posttrans -p <lua>
+%post -p <lua>
 --(tpg) seems like arg=arg+1 for lua
 if arg[2] >= 2 then
 	vr = posix.stat("/var/run")
