@@ -251,7 +251,8 @@ end
 %endif
 %if "%{_lib}" == "lib64"
 %dir %attr(555,root,root) %{_prefix}/%{_lib}
-%else
+%endif
+%if "%{_lib}" == "lib"
 %dir %attr(555,root,root) %{_prefix}/lib/tls
 %dir %attr(555,root,root) %{_prefix}/lib/X11
 %dir %attr(555,root,root) %{_prefix}/lib/pm-utils
