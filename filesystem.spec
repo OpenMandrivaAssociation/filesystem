@@ -233,7 +233,7 @@ end
 %dir %{_includedir}
 %dir %attr(555,root,root) %{_prefix}/lib
 %dir %{_prefix}/lib/debug
-%dir %{_prefix}/lib/debug/bin
+%dir %ghost %{_prefix}/lib/debug/bin
 %dir %ghost %{_prefix}/lib/debug/lib
 %if "%{_lib}" == "lib64"
 %dir %ghost %{_prefix}/lib/debug/%{_lib}
