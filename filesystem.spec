@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	3.0
-Release:	16
+Release:	17
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -233,17 +233,17 @@ end
 %dir %{_includedir}
 %dir %attr(555,root,root) %{_prefix}/lib
 %dir %{_prefix}/lib/debug
-%dir %ghost %{_prefix}/lib/debug/bin
-%dir %ghost %{_prefix}/lib/debug/lib
+%dir %{_prefix}/lib/debug/bin
+%dir %{_prefix}/lib/debug/lib
 %if "%{_lib}" == "lib64"
-%dir %ghost %{_prefix}/lib/debug/%{_lib}
+%dir %{_prefix}/lib/debug/%{_lib}
 %endif
 %ifarch x86_64
-%dir %ghost %{_prefix}/lib/debug/libx32
+%dir %{_prefix}/lib/debug/libx32
 %endif
-%dir %ghost %{_prefix}/lib/debug/%{_prefix}
-%dir %ghost %{_prefix}/lib/debug/%{_prefix}/.dwz
-%dir %ghost %{_prefix}/lib/debug/sbin
+%dir %{_prefix}/lib/debug/%{_prefix}
+%dir %{_prefix}/lib/debug/%{_prefix}/.dwz
+%dir %{_prefix}/lib/debug/sbin
 %dir %attr(555,root,root) %{_prefix}/lib/games
 %dir %attr(555,root,root) %{_prefix}/lib/sse2
 %ifarch x86_64
