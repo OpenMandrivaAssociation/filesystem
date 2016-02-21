@@ -1,14 +1,14 @@
 Name:		filesystem
 Version:	3.0
-Release:	17
+Release:	18
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
 URL:		%{disturl}
 # attempt at fixing up screwup by others cluelessly trying to merge this
 # package with setup package
-Requires(post):	setup >= 2.8.8-12
-Requires(pretrans):	setup >= 2.8.8-12
+Requires(post):	setup >= 2.8.9-3
+Requires(pretrans):	setup >= 2.8.9-3
 Source0:	filesystem.rpmlintrc
 # Raw source1 URL: https://fedorahosted.org/filesystem/browser/lang-exceptions?format=raw
 Source1:	https://fedorahosted.org/filesystem/browser/lang-exceptions
@@ -172,19 +172,18 @@ if vl and vl.type ~= "link" then
     os.rename("/var/lock", "/var/lock.old")
 end
 
-
 %post -p <lua>
 --(tpg) seems like arg=arg+1 for lua
 if arg[2] >= 2 then
-	vr = posix.stat("/var/run")
-	if vr and vr.type ~= "link" then
-		posix.symlink("../run", "/var/run")
-	end
+    vr = posix.stat("/var/run")
+    if vr and vr.type ~= "link" then
+	posix.symlink("../run", "/var/run")
+    end
 
-	vr = posix.stat("/var/lock")
-	if vr and vr.type ~= "link" then
-		posix.symlink("../run/lock", "/var/lock")
-	end
+    vr = posix.stat("/var/lock")
+    if vr and vr.type ~= "link" then
+	posix.symlink("../run/lock", "/var/lock")
+    end
 end
 
 %files -f filelist
