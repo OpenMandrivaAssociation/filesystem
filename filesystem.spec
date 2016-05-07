@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	3.0
-Release:	18
+Release:	19
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -15,7 +15,22 @@ Source1:	https://fedorahosted.org/filesystem/browser/lang-exceptions
 Source2:	iso_639.sed
 Source3:	iso_3166.sed
 BuildRequires:	iso-codes
-
+# (tpg) fix upgrade from 2014.x
+Conflicts:	man-pages < 4.05
+Conflicts:	man-pages-cs < 0.18.20090209-19
+Conflicts:	man-pages-da < 0.1.1-25
+Conflicts:	man-pages-de < 0.9-12
+Conflicts:	man-pages-es < 1.55-20
+Conflicts:	man-pages-fr < 3.03.0-24
+Conflicts:	man-pages-hu < 0.2.2-28
+Conflicts:	man-pages-id < 0.1-30
+Conflicts:	man-pages-it < 2.80-18
+Conflicts:	man-pages-ja < 20091215-17
+Conflicts:	man-pages-ko < 20050219-23
+Conflicts:	man-pages-pl < 0.6-24
+Conflicts:	man-pages-pt_BR < 0.1-21
+Conflicts:	man-pages-ru < 3.41-25
+Conflicts:	man-pages-zh < 1.5-21
 
 %description
 The filesystem package is one of the basic packages that is installed on
