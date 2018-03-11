@@ -1,6 +1,9 @@
+%define _logdir /var/log
+%define _localedir %{_datadir}/locale
+
 Name:		filesystem
 Version:	3.0
-Release:	20
+Release:	21
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -109,7 +112,7 @@ mkdir -p %{buildroot}{%{_logdir},%{_tmppath}}
 mkdir -p %{buildroot}%{_var}/{adm,gopher,local,nis,preserve,empty}
 mkdir -p %{buildroot}%{_var}/spool/{lpd,mail,news,uucp}
 mkdir -p %{buildroot}%{_localstatedir}/lib/{games,misc,rpm-state}
-mkdir -p %{buildroot}%{_var}/{db,cache/man,opt,games,gopher,yp}
+mkdir -p %{buildroot}%{_var}/{db,cache,opt,games,gopher,yp}
 mkdir -p %{buildroot}/run/lock
 
 ln -srf %{buildroot}/run %{buildroot}%{_var}/run
@@ -340,18 +343,14 @@ end
 %dir %{_mandir}/mann
 %dir %{_usrsrc}
 %dir %{_usrsrc}/debug
-%dir %{_prefix}/tmp
 %dir %{_var}
 %dir %{_var}/adm
 %dir %{_var}/cache
-%dir %{_var}/cache/man
 %dir %{_var}/db
 %dir %{_var}/empty
 %dir %{_var}/games
 %dir %{_var}/gopher
 %dir %{_var}/local
-%dir %{_var}/lock
-%dir %{_var}/mail
 %dir %{_var}/nis
 %dir %{_var}/opt
 %dir %{_var}/preserve
@@ -362,4 +361,9 @@ end
 %dir %attr(775,root,uucp) %{_var}/spool/uucp
 %dir %attr(1777,root,root) %{_tmppath}
 %dir %{_var}/yp
-%dir %{_varrun}
+# Symlinks to the "right" location...
+%{_var}/mail
+# Legacy symlinks...
+/var/run
+%{_prefix}/tmp
+%{_var}/lock
