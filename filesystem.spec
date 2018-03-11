@@ -1,6 +1,3 @@
-%define _logdir /var/log
-%define _localedir %{_datadir}/locale
-
 Name:		filesystem
 Version:	3.0
 Release:	21
