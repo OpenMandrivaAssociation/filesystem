@@ -1,6 +1,6 @@
 Name:		filesystem
-Version:	3.0
-Release:	21
+Version:	4.0
+Release:	0.1
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -50,7 +50,6 @@ mkdir -p %{buildroot}/{mnt,media,bin,boot,dev}
 mkdir -p %{buildroot}/{opt,proc,root,run,sbin,srv,sys,tmp}
 mkdir -p %{buildroot}/{home,initrd}
 mkdir -p %{buildroot}/lib/modules
-
 
 mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},security,skel,ssl,sysconfig,xdg,xinetd.d,X11/{applnk,fontpath.d}}
 
