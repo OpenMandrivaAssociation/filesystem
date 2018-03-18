@@ -1,20 +1,17 @@
 Name:		filesystem
 Version:	4.0
-Release:	0.1
+Release:	0.2
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
 URL:		%{disturl}
-# attempt at fixing up screwup by others cluelessly trying to merge this
-# package with setup package
-Requires(post):	setup >= 2.8.9-3
-Requires(pretrans):	setup >= 2.8.9-3
 Source0:	filesystem.rpmlintrc
 # Raw source1 URL: https://fedorahosted.org/filesystem/browser/lang-exceptions?format=raw
 Source1:	https://fedorahosted.org/filesystem/browser/lang-exceptions
 Source2:	iso_639.sed
 Source3:	iso_3166.sed
 BuildRequires:	iso-codes
+Conflicts:	setup < 2.8.9-3
 # (tpg) fix upgrade from 2014.x
 Conflicts:	man-pages < 4.05
 Conflicts:	man-pages-cs < 0.18.20090209-19
