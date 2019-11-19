@@ -1,6 +1,6 @@
 Name:		filesystem
 Version:	4.0
-Release:	0.3
+Release:	1
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -48,7 +48,8 @@ mkdir -p %{buildroot}/{opt,proc,root,run,sbin,srv,sys,tmp}
 mkdir -p %{buildroot}/{home,initrd}
 mkdir -p %{buildroot}/lib/modules
 
-mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},security,skel,ssl,sysconfig,xdg,xinetd.d,X11/{applnk,fontpath.d}}
+mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},rwtab.d,statetab.d,security,skel,ssl,sysconfig,xdg/autostart,X11/{applnk,fontpath.d,xinit/{xinitrc,xinput}.d}}
+
 
 %if "%{_lib}" == "lib64"
 mkdir -p %{buildroot}{/%{_lib},%{_libdir}}
@@ -126,7 +127,7 @@ grep -v "^$" iso_639.tab | grep -v "^#" | while read a b c d ; do
     if [ "$locale" = "XX" ]; then
         locale=$b
     fi
-    echo "%lang(${locale})	%{_localedir}/${locale}" >> filelist
+    echo "%lang(${locale}) %{_localedir}/${locale}" >> filelist
     echo "%lang(${locale}) %ghost %config(missingok) %{_mandir}/${locale}" >>filelist
 done
 cat %{SOURCE1} | grep -v "^#" | grep -v "^$" | while read loc ; do
@@ -209,12 +210,13 @@ end
 %dir %{_sysconfdir}/opt
 %dir %{_sysconfdir}/pki
 %dir %{_sysconfdir}/pm
+%dir %{_sysconfdir}/rwtab.d
+%dir %{_sysconfdir}/statetab.d
 %dir %{_sysconfdir}/security
 %dir %{_sysconfdir}/ssl
 %dir %{_sysconfdir}/skel
 %dir %{_sysconfdir}/sysconfig
 %dir %{_sysconfdir}/xdg
-%dir %{_sysconfdir}/xinetd.d
 %dir %{_sysconfdir}/X11
 %dir /home
 %dir /initrd
