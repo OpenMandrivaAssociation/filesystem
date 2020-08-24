@@ -177,8 +177,6 @@ for i in 0p 1p 3p n; do
 done
 
 %pretrans -p <lua>
-
-%pretrans -p <lua>
 --# If we are running in pretrans in a fresh root, there is no /usr and
 --# symlinks. We cannot be sure, to be the very first rpm in the
 --# transaction list. Let's create the needed base directories and symlinks
