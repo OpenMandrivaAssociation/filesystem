@@ -1,6 +1,8 @@
+%define debug_package %{nil}
+
 Name:		filesystem
 Version:	4.0
-Release:	1
+Release:	2
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -11,6 +13,7 @@ Source1:	https://fedorahosted.org/filesystem/browser/lang-exceptions
 Source2:	iso_639.sed
 Source3:	iso_3166.sed
 BuildRequires:	iso-codes
+Requires(pre):	setup
 Conflicts:	setup < 2.8.9-3
 # (tpg) fix upgrade from 2014.x
 Conflicts:	man-pages < 4.05
@@ -48,7 +51,7 @@ mkdir -p %{buildroot}/{opt,proc,root,run,sbin,srv,sys,tmp}
 mkdir -p %{buildroot}/{home,initrd}
 mkdir -p %{buildroot}/lib/modules
 
-mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},rwtab.d,statetab.d,security,skel,ssl,sysconfig,xdg/autostart,X11/{applnk,fontpath.d,xinit/{xinitrc,xinput}.d}}
+mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},rwtab.d,statetab.d,security,skel,ssl,sysconfig,xdg/autostart,X11/{applnk,fontpath.d,xinit/{xinitrc,xinput}.d},rwtab.d,statetab.d}
 
 
 %if "%{_lib}" == "lib64"
@@ -73,7 +76,7 @@ mkdir -p %{buildroot}%{_libdir}/lib/games
 
 
 mkdir -p %{buildroot}%{_libdir}/{gcc-lib,pm-utils/{module.d,power.d,sleep.d}}
-mkdir -p %{buildroot}%{_prefix}/lib/{gcc-lib,sse2,tls,sse2}
+mkdir -p %{buildroot}%{_prefix}/lib/gcc-lib
 # deprecated..?
 mkdir -p %{buildroot}%{_prefix}/lib/X11
 mkdir -p %{buildroot}%{_prefix}/lib/debug/{bin,lib,usr/.dwz,sbin}
@@ -103,10 +106,10 @@ mkdir -p %{buildroot}%{_prefix}/local/share/info
 
 mkdir -p %{buildroot}%{_localedir}
 mkdir -p %{buildroot}{%{_logdir},%{_tmppath}}
-mkdir -p %{buildroot}%{_var}/{adm,gopher,local,nis,preserve,empty}
+mkdir -p %{buildroot}%{_var}/{adm,local,nis,preserve,empty}
 mkdir -p %{buildroot}%{_var}/spool/{lpd,mail,news,uucp}
 mkdir -p %{buildroot}%{_localstatedir}/lib/{games,misc,rpm-state}
-mkdir -p %{buildroot}%{_var}/{db,cache,opt,games,gopher,yp}
+mkdir -p %{buildroot}%{_var}/{db,cache,opt,games,yp}
 mkdir -p %{buildroot}/run/lock
 
 ln -srf %{buildroot}/run %{buildroot}%{_var}/run
@@ -174,29 +177,28 @@ for i in 0p 1p 3p n; do
 done
 
 %pretrans -p <lua>
-vr = posix.stat("/var/run")
-if vr and vr.type ~= "link" then
-    os.rename("/var/run", "/var/run.old")
-end
 
-vl = posix.stat("/var/lock")
-if vl and vl.type ~= "link" then
-    os.rename("/var/lock", "/var/lock.old")
-end
-
-%post -p <lua>
---(tpg) seems like arg=arg+1 for lua
-if arg[2] >= 2 then
-    vr = posix.stat("/var/run")
-    if vr and vr.type ~= "link" then
-	posix.symlink("../run", "/var/run")
-    end
-
-    vr = posix.stat("/var/lock")
-    if vr and vr.type ~= "link" then
-	posix.symlink("../run/lock", "/var/lock")
-    end
-end
+%pretrans -p <lua>
+--# If we are running in pretrans in a fresh root, there is no /usr and
+--# symlinks. We cannot be sure, to be the very first rpm in the
+--# transaction list. Let's create the needed base directories and symlinks
+--# here, to place the files from other packages in the right locations.
+--# When our rpm is unpacked by cpio, it will set all permissions and modes
+--# later.
+posix.mkdir("/bin")
+posix.mkdir("/sbin")
+posix.mkdir("/%{_lib}")
+posix.mkdir("/usr")
+posix.mkdir("/usr/bin")
+posix.mkdir("/usr/sbin")
+posix.mkdir("/usr/lib")	
+posix.mkdir("/usr/lib/debug")
+posix.mkdir("/usr/%{_lib}")	
+posix.mkdir("/run")
+posix.mkdir("/var")	
+posix.symlink("../run", "/var/run")
+posix.symlink("../run/lock", "/var/lock")
+return 0
 
 %files -f filelist
 %defattr(0755,root,root,-)
@@ -218,6 +220,8 @@ end
 %dir %{_sysconfdir}/sysconfig
 %dir %{_sysconfdir}/xdg
 %dir %{_sysconfdir}/X11
+%dir %{_sysconfdir}/rwtab.d
+%dir %{_sysconfdir}/statetab.d 
 %dir /home
 %dir /initrd
 %dir /lib
@@ -257,7 +261,6 @@ end
 %dir %{_prefix}/lib/debug/%{_prefix}/.dwz
 %dir %{_prefix}/lib/debug/sbin
 %dir %attr(555,root,root) %{_prefix}/lib/games
-%dir %attr(555,root,root) %{_prefix}/lib/sse2
 %ifarch x86_64
 %dir %attr(555,root,root) %{_prefix}/libx32
 %endif
@@ -265,7 +268,6 @@ end
 %dir %attr(555,root,root) %{_prefix}/%{_lib}
 %endif
 %if "%{_lib}" == "lib"
-%dir %attr(555,root,root) %{_prefix}/lib/tls
 %dir %attr(555,root,root) %{_prefix}/lib/X11
 %dir %attr(555,root,root) %{_prefix}/lib/pm-utils
 %endif
@@ -344,7 +346,6 @@ end
 %dir %{_var}/db
 %dir %{_var}/empty
 %dir %{_var}/games
-%dir %{_var}/gopher
 %dir %{_var}/local
 %dir %{_var}/nis
 %dir %{_var}/opt
