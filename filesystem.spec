@@ -2,7 +2,7 @@
 
 Name:		filesystem
 Version:	4.0
-Release:	2
+Release:	3
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -47,7 +47,7 @@ directories.
 rm -f filelist
 
 mkdir -p %{buildroot}/{mnt,media,bin,boot,dev}
-mkdir -p %{buildroot}/{opt,proc,root,run,sbin,srv,sys,tmp}
+mkdir -p %{buildroot}/{opt,root,run,sbin,srv,tmp}
 mkdir -p %{buildroot}/{home,initrd}
 mkdir -p %{buildroot}/lib/modules
 
@@ -189,11 +189,15 @@ posix.mkdir("/%{_lib}")
 posix.mkdir("/usr")
 posix.mkdir("/usr/bin")
 posix.mkdir("/usr/sbin")
-posix.mkdir("/usr/lib")	
+posix.mkdir("/usr/lib")
 posix.mkdir("/usr/lib/debug")
-posix.mkdir("/usr/%{_lib}")	
+posix.mkdir("/usr/%{_lib}")
 posix.mkdir("/run")
-posix.mkdir("/var")	
+posix.mkdir("/proc")
+posix.mkdir("/sys")
+posix.chmod("/proc", 0555)
+posix.chmod("/sys", 0555)
+posix.mkdir("/var")
 posix.symlink("../run", "/var/run")
 posix.symlink("../run/lock", "/var/lock")
 return 0
@@ -233,13 +237,13 @@ return 0
 %dir /media
 %dir /mnt
 %dir /opt
-%dir %attr(555,root,root) /proc
+%ghost %attr(555,root,root) /proc
 %dir %attr(550,root,root) /root
 %dir %{_rundir}
 %dir %attr(775,root,uucp) /run/lock
 %dir /sbin
 %dir /srv
-%dir %attr(555,root,root) /sys
+%ghost %attr(555,root,root) /sys
 %dir %attr(1777,root,root) /tmp
 %dir %{_prefix}
 %dir %attr(555,root,root) %{_bindir}
