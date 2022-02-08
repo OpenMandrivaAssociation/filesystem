@@ -1,8 +1,8 @@
 %define debug_package %{nil}
 
 Name:		filesystem
-Version:	4.0
-Release:	3
+Version:	5.0
+Release:	1
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -34,7 +34,7 @@ Conflicts:	man-pages-zh < 1.5-21
 
 %description
 The filesystem package is one of the basic packages that is installed on
-a %{distribution} system.  Filesystem  contains the basic directory layout
+a %{distribution} system. Filesystem contains the basic directory layout
 for a Linux operating system, including the correct permissions for the
 directories.
 
@@ -46,54 +46,51 @@ directories.
 %install
 rm -f filelist
 
-mkdir -p %{buildroot}/{mnt,media,bin,boot,dev}
-mkdir -p %{buildroot}/{opt,root,run,sbin,srv,tmp}
+mkdir -p %{buildroot}/{mnt,media,boot,dev}
+mkdir -p %{buildroot}/{opt,root,run,srv,tmp}
 mkdir -p %{buildroot}/{home,initrd}
-mkdir -p %{buildroot}/lib/modules
+mkdir -p %{buildroot}/usr/%{_target_platform}/{bin,lib}
+mkdir -p %{buildroot}/usr/share
+ln -s ../share %{buildroot}/usr/%{_target_platform}/share
+
+ln -s bin %{buildroot}/usr/%{_target_platform}/sbin
+for i in bin sbin; do
+	ln -s usr/%{_target_platform}/$i %{buildroot}/$i
+done
+for i in bin sbin libexec; do
+	ln -s %{_target_platform}/$i %{buildroot}/usr/$i
+done
+%ifarch %{x86_64}
+ln -s usr/%{_target_platform}/lib %{buildroot}/lib64
+ln -s usr/i686-openmandriva-linux-gnu/lib %{buildroot}/lib
+ln -s i686-openmandriva-linux-gnu/lib %{buildroot}/usr/lib
+ln -s usr/x86_64-openmandriva-linux-gnux32/lib %{buildroot}/libx32
+ln -s x86_64-openmandriva-linux-gnux32/lib %{buildroot}/usr/libx32
+%endif
+%ifarch %{aarch64}
+ln -s usr/%{_target_platform}/lib %{buildroot}/lib64
+ln -s usr/armv7hnl-openmandriva-linux-gnueabihf/lib %{buildroot}/lib
+%endif
 
 mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},rwtab.d,statetab.d,security,skel,ssl,sysconfig,xdg/autostart,X11/{applnk,fontpath.d,xinit/{xinitrc,xinput}.d},rwtab.d,statetab.d}
 
-
-%if "%{_lib}" == "lib64"
-mkdir -p %{buildroot}{/%{_lib},%{_libdir}}
-%endif
-%ifarch x86_64
-mkdir -p %{buildroot}{,%{_prefix},%{_prefix}/local}/libx32
-%endif
 mkdir -p %{buildroot}%{_usrsrc}{,/debug}
 
-
-mkdir -p %{buildroot}%{_prefix}/{etc,lib}
+mkdir -p %{buildroot}%{_prefix}/etc
 mkdir -p %{buildroot}{%{_bindir},%{_includedir},%{_sbindir},%{_datadir}}
-mkdir -p %{buildroot}%{_datadir}/{aclocal,appdata,applications,augeas,backgrounds,color/{icc,cmms,settings},desktop-directories,dict,doc,fonts,empty,fontsmisc,games,ghostscript{,/conf.d},gnome,icons,idl,mime-info,misc,omf,pixmaps,ppd,sounds,themes,xsessions,X11}
+mkdir -p %{buildroot}%{_datadir}/{aclocal,appdata,applications,augeas,backgrounds,color/{icc,cmms,settings},desktop-directories,dict,doc,fonts,empty,fontsmisc,games,icons,idl,mime-info,misc,omf,pixmaps,ppd,sounds,themes,xsessions,X11}
 mkdir -p %{buildroot}%{_infodir}
 # games
 mkdir -p %{buildroot}{%{_gamesbindir},%{_gamesdatadir}}
-mkdir -p %{buildroot}%{_prefix}/lib/games
-%if "%{_lib}" == "lib64"
-mkdir -p %{buildroot}%{_libdir}/lib/games
-%endif
 
+mkdir -p %{buildroot}%{_libdir}/{pm-utils/{module.d,power.d,sleep.d}}
 
-mkdir -p %{buildroot}%{_libdir}/{gcc-lib,pm-utils/{module.d,power.d,sleep.d}}
-mkdir -p %{buildroot}%{_prefix}/lib/gcc-lib
-# deprecated..?
-mkdir -p %{buildroot}%{_prefix}/lib/X11
-mkdir -p %{buildroot}%{_prefix}/lib/debug/{bin,lib,usr/.dwz,sbin}
-%if "%{_lib}" == "lib64"
-mkdir -p %{buildroot}%{_prefix}/lib/debug/%{_lib}
-%endif
-%ifarch x86_64
-mkdir -p %{buildroot}%{_prefix}/lib/debug/libx32
-%endif
-
-mkdir -p %{buildroot}%{_libexecdir}
-
-mkdir -p %{buildroot}%{_prefix}/local/{bin,doc,etc,games,lib,sbin,src,libexec,include}
+mkdir -p %{buildroot}%{_prefix}/local/{bin,doc,etc,games,lib,src,libexec,include}
+ln -s bin %{buildroot}%{_prefix}/local/sbin
 %if "%{_lib}" == "lib64"
 mkdir -p %{buildroot}%{_prefix}/local/%{_lib}
 %endif
-%ifarch x86_64
+%ifarch %{x86_64}
 mkdir -p %{buildroot}%{_prefix}/local/libx32
 %endif
 
@@ -183,15 +180,79 @@ done
 --# here, to place the files from other packages in the right locations.
 --# When our rpm is unpacked by cpio, it will set all permissions and modes
 --# later.
-posix.mkdir("/bin")
-posix.mkdir("/sbin")
-posix.mkdir("/%{_lib}")
+
+--# Move all files in a source directory to a destination directory -- useful
+--# when we can't just move the directory because we're collecting multiple
+--# previous directories in one new one...
+local function mvdir(source, dest)
+	for i,p in pairs(posix.dir(source)) do
+		os.rename(source .. "/" .. p, dest .. "/" .. p)
+	end
+end
 posix.mkdir("/usr")
-posix.mkdir("/usr/bin")
-posix.mkdir("/usr/sbin")
-posix.mkdir("/usr/lib")
+posix.mkdir("/usr/%{_target_platform}")
+posix.mkdir("/usr/%{_target_platform}/bin")
+posix.mkdir("/usr/%{_target_platform}/lib")
+posix.mkdir("/usr/%{_target_platform}/libexec")
+%ifarch %{x86_64}
+posix.mkdir("/usr/i686-openmandriva-linux-gnu")
+posix.mkdir("/usr/i686-openmandriva-linux-gnu/lib")
+%endif
+%ifarch %{aarch64}
+posix.mkdir("/usr/armv7hnl-openmandriva-linux-gnueabihf")
+posix.mkdir("/usr/armv7hnl-openmandriva-linux-gnueabihf/lib")
+%endif
+
+--# If we're updating from 4.x, we need to move contents of what used to
+--# be directories around...
+st=posix.stat("/bin")
+if st and st.type == "directory" then
+	mvdir("/bin", "/usr/%{_target_platform}/bin")
+	mvdir("/sbin", "/usr/%{_target_platform}/bin")
+	mvdir("/usr/bin", "/usr/%{_target_platform}/bin")
+	mvdir("/usr/sbin", "/usr/%{_target_platform}/bin")
+	mvdir("/usr/libexec", "/usr/%{_target_platform}/libexec")
+
+	posix.rmdir("/bin")
+	posix.rmdir("/sbin")
+	posix.rmdir("/usr/bin")
+	posix.rmdir("/usr/sbin")
+	posix.rmdir("/usr/libexec")
+%ifarch %{x86_64} %{aarch64}
+	mvdir("/lib64", "/usr/%{_target_platform}/lib")
+	mvdir("/usr/lib64", "/usr/%{_target_platform}/lib")
+	posix.rmdir("/lib64")
+	posix.rmdir("/usr/lib64")
+%ifarch %{x86_64}
+	mvdir("/lib", "/usr/i686-openmandriva-linux-gnu/lib")
+	mvdir("/usr/lib", "/usr/i686-openmandriva-linux-gnu/lib")
+%endif
+%ifarch %{aarch64}
+	mvdir("/lib", "/usr/armv7hnl-openmandriva-linux-gnueabihf/lib")
+	mvdir("/usr/lib", "/usr/armv7hnl-openmandriva-linux-gnueabihf/lib")
+%endif
+%else
+	mvdir("/lib", "/usr/%{_target_platform}/lib")
+	mvdir("/usr/lib", "/usr/%{_target_platform}/lib")
+	posix.rmdir("/lib")
+	posix.rmdir("/usr/lib")
+%endif
+end
+
+%ifarch %{x86_64} %{aarch64}
+posix.symlink("usr/%{_target_platform}/lib", "/lib64")
+posix.symlink("usr/%{_target_platform}/lib", "/usr/lib64")
+%else
+posix.symlink("usr/%{_target_platform}/lib", "/lib")
+posix.symlink("usr/%{_target_platform}/lib", "/usr/lib")
+%endif
+posix.symlink("usr/%{_target_platform}/bin", "/bin")
+posix.symlink("usr/%{_target_platform}/bin", "/sbin")
+posix.symlink("%{_target_platform}/bin", "/usr/bin")
+posix.symlink("%{_target_platform}/bin", "/usr/sbin")
+posix.symlink("%{_target_platform}/libexec", "/usr/libexec")
+
 posix.mkdir("/usr/lib/debug")
-posix.mkdir("/usr/%{_lib}")
 posix.mkdir("/run")
 posix.mkdir("/proc")
 posix.mkdir("/sys")
@@ -205,9 +266,9 @@ return 0
 %files -f filelist
 %defattr(0755,root,root,-)
 %dir %attr(555,root,root) /
-%dir /bin
+/bin
 %attr(555,root,root) /boot
-%dir /dev
+/dev
 %dir %{_sysconfdir}
 %dir %{_sysconfdir}/bash_completion.d/
 %dir %{_sysconfdir}/default
@@ -226,13 +287,16 @@ return 0
 %dir %{_sysconfdir}/statetab.d 
 %dir /home
 %dir /initrd
-%dir /lib
-%dir /lib/modules
-%if "%{_lib}" == "lib64"
-%dir /%{_lib}
+/usr/%{_target_platform}
+/lib
+/usr/lib
+%ifarch %{x86_64} %{aarch64}
+/lib64
+/usr/lib64
+%ifarch %{x86_64}
+/libx32
+/usr/libx32
 %endif
-%ifarch x86_64
-%dir /libx32
 %endif
 %dir /media
 %dir /mnt
@@ -241,30 +305,17 @@ return 0
 %dir %attr(550,root,root) /root
 %dir %{_rundir}
 %dir %attr(775,root,uucp) /run/lock
-%dir /sbin
+/sbin
 %dir /srv
 %ghost %attr(555,root,root) /sys
 %dir %attr(1777,root,root) /tmp
-%dir %{_prefix}
-%dir %attr(555,root,root) %{_bindir}
+%dir /usr
+/usr/bin
 %dir %{_gamesbindir}
 %dir %{_includedir}
-%dir %attr(555,root,root) %{_prefix}/lib
-%dir %{_prefix}/lib/debug
-%dir %{_prefix}/lib/debug/bin
-%dir %{_prefix}/lib/debug/lib
-%if "%{_lib}" == "lib64"
-%dir %{_prefix}/lib/debug/%{_lib}
-%endif
-%ifarch x86_64
-%dir %{_prefix}/lib/debug/libx32
-%endif
-%dir %{_prefix}/lib/debug/%{_prefix}
-%dir %{_prefix}/lib/debug/%{_prefix}/.dwz
-%dir %{_prefix}/lib/debug/sbin
-%dir %attr(555,root,root) %{_prefix}/lib/games
-%ifarch x86_64
-%dir %attr(555,root,root) %{_prefix}/libx32
+%{_prefix}/lib
+%ifarch %{x86_64}
+%{_prefix}/libx32
 %endif
 %if "%{_lib}" == "lib64"
 %dir %attr(555,root,root) %{_prefix}/%{_lib}
@@ -273,7 +324,7 @@ return 0
 %dir %attr(555,root,root) %{_prefix}/lib/X11
 %dir %attr(555,root,root) %{_prefix}/lib/pm-utils
 %endif
-%dir %{_libexecdir}
+%{_libexecdir}
 %dir %{_prefix}/local
 %dir %{_prefix}/local/bin
 %dir %{_prefix}/local/doc
@@ -283,10 +334,10 @@ return 0
 %if "%{_lib}" == "lib64"
 %dir %{_prefix}/local/%{_lib}
 %endif
-%ifarch x86_64
+%ifarch %{x86_64}
 %dir %{_prefix}/local/libx32
 %endif
-%dir %{_prefix}/local/sbin
+%{_prefix}/local/sbin
 %dir %{_prefix}/local/src
 %dir %{_prefix}/local/libexec
 %dir %{_prefix}/local/include
@@ -298,7 +349,7 @@ return 0
 %dir %{_prefix}/local/share/man/man[1-9]x
 %dir %{_prefix}/local/share/man/mann
 %dir %{_prefix}/local/share/info
-%dir %attr(555,root,root) %{_sbindir}
+/usr/sbin
 %dir %{_datadir}
 %dir %{_datadir}/aclocal
 %dir %{_datadir}/appdata
@@ -316,9 +367,6 @@ return 0
 %dir %{_datadir}/fonts
 %dir %{_datadir}/fontsmisc
 %dir %{_datadir}/games
-%dir %{_datadir}/ghostscript
-%dir %{_datadir}/ghostscript/conf.d
-%dir %{_datadir}/gnome
 %dir %{_datadir}/icons
 %dir %{_datadir}/idl
 %dir %{_datadir}/mime-info
