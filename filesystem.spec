@@ -2,7 +2,7 @@
 
 Name:		filesystem
 Version:	4.0
-Release:	3
+Release:	4
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -53,7 +53,6 @@ mkdir -p %{buildroot}/lib/modules
 
 mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},rwtab.d,statetab.d,security,skel,ssl,sysconfig,xdg/autostart,X11/{applnk,fontpath.d,xinit/{xinitrc,xinput}.d},rwtab.d,statetab.d}
 
-
 %if "%{_lib}" == "lib64"
 mkdir -p %{buildroot}{/%{_lib},%{_libdir}}
 %endif
@@ -61,7 +60,6 @@ mkdir -p %{buildroot}{/%{_lib},%{_libdir}}
 mkdir -p %{buildroot}{,%{_prefix},%{_prefix}/local}/libx32
 %endif
 mkdir -p %{buildroot}%{_usrsrc}{,/debug}
-
 
 mkdir -p %{buildroot}%{_prefix}/{etc,lib}
 mkdir -p %{buildroot}{%{_bindir},%{_includedir},%{_sbindir},%{_datadir}}
@@ -73,7 +71,6 @@ mkdir -p %{buildroot}%{_prefix}/lib/games
 %if "%{_lib}" == "lib64"
 mkdir -p %{buildroot}%{_libdir}/lib/games
 %endif
-
 
 mkdir -p %{buildroot}%{_libdir}/{gcc-lib,pm-utils/{module.d,power.d,sleep.d}}
 mkdir -p %{buildroot}%{_prefix}/lib/gcc-lib
@@ -99,7 +96,7 @@ mkdir -p %{buildroot}%{_prefix}/local/libx32
 
 mkdir -p %{buildroot}%{_prefix}/local/share/{applications,desktop-directories}
 for i in $(seq 1 9); do
-	mkdir -p -m755 %{buildroot}%{_prefix}/local/share/man/man${i}{,x}
+    mkdir -p -m755 %{buildroot}%{_prefix}/local/share/man/man${i}{,x}
 done
 mkdir -p %{buildroot}%{_prefix}/local/share/man/mann
 mkdir -p %{buildroot}%{_prefix}/local/share/info
@@ -222,8 +219,6 @@ return 0
 %dir %{_sysconfdir}/sysconfig
 %dir %{_sysconfdir}/xdg
 %dir %{_sysconfdir}/X11
-%dir %{_sysconfdir}/rwtab.d
-%dir %{_sysconfdir}/statetab.d 
 %dir /home
 %dir /initrd
 %dir /lib
