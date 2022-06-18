@@ -113,6 +113,7 @@ ln -srf %{buildroot}%{_tmppath} %{buildroot}%{_prefix}/tmp
 ln -srf %{buildroot}%{_var}/spool/mail %{buildroot}%{_var}/mail
 ln -srf %{buildroot}%{_bindir} %{buildroot}/bin
 ln -srf %{buildroot}%{_sbindir} %{buildroot}/sbin
+ln -srf bin %{buildroot}%{_prefix}/sbin
 ln -srf %{buildroot}%{_prefix}/lib %{buildroot}/lib
 %if "%{_lib}" != "lib"
 ln -srf %{buildroot}%{_prefix}/%{_lib} %{buildroot}/%{_lib}
@@ -260,6 +261,13 @@ local function mergedirs(source, dest)
 			end
 		end
 	end
+	--# If anything remains (e.g. /lib/systemd vs /usr/lib/systemd directories)
+	--# move it around to be on the safe side
+	for i,p in pairs(posix.dir(source)) do
+		if(p ~= "." and p ~= "..") then
+			os.rename(source .. "/" .. p, dest .. "/" .. p .. ".PRE-USRMERGE")
+		end
+	end
 	posix.rmdir(source)
 end
 posix.mkdir("/usr")
@@ -385,7 +393,6 @@ return 0
 %dir %{_prefix}/local/share/man/man[1-9]x
 %dir %{_prefix}/local/share/man/mann
 %dir %{_prefix}/local/share/info
-%dir %attr(555,root,root) %{_sbindir}
 %dir %{_datadir}
 %dir %{_datadir}/aclocal
 %dir %{_datadir}/appdata
@@ -449,6 +456,7 @@ return 0
 /var/run
 %{_prefix}/tmp
 %{_var}/lock
+%{_prefix}/sbin
 /sbin
 /bin
 /lib
