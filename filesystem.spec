@@ -1,8 +1,8 @@
 %define debug_package %{nil}
 
 Name:		filesystem
-Version:	4.0
-Release:	4
+Version:	4.4
+Release:	1
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -34,7 +34,7 @@ Conflicts:	man-pages-zh < 1.5-21
 
 %description
 The filesystem package is one of the basic packages that is installed on
-a %{distribution} system.  Filesystem  contains the basic directory layout
+a %{distribution} system. Filesystem contains the basic directory layout
 for a Linux operating system, including the correct permissions for the
 directories.
 
@@ -46,41 +46,39 @@ directories.
 %install
 rm -f filelist
 
-mkdir -p %{buildroot}/{mnt,media,bin,boot,dev}
-mkdir -p %{buildroot}/{opt,root,run,sbin,srv,tmp}
+mkdir -p %{buildroot}/{mnt,media,boot,dev}
+mkdir -p %{buildroot}/{opt,root,run,srv,tmp}
 mkdir -p %{buildroot}/{home,initrd}
-mkdir -p %{buildroot}/lib/modules
 
 mkdir -p %{buildroot}%{_sysconfdir}/{bash_completion.d,default,opt,pki,pm/{config.d,power.d,sleep.d},rwtab.d,statetab.d,security,skel,ssl,sysconfig,xdg/autostart,X11/{applnk,fontpath.d,xinit/{xinitrc,xinput}.d},rwtab.d,statetab.d}
 
 %if "%{_lib}" == "lib64"
-mkdir -p %{buildroot}{/%{_lib},%{_libdir}}
+mkdir -p %{buildroot}%{_libdir}
 %endif
-%ifarch x86_64
+%ifarch %{x86_64}
 mkdir -p %{buildroot}{,%{_prefix},%{_prefix}/local}/libx32
 %endif
 mkdir -p %{buildroot}%{_usrsrc}{,/debug}
 
 mkdir -p %{buildroot}%{_prefix}/{etc,lib}
 mkdir -p %{buildroot}{%{_bindir},%{_includedir},%{_sbindir},%{_datadir}}
-mkdir -p %{buildroot}%{_datadir}/{aclocal,appdata,applications,augeas,backgrounds,color/{icc,cmms,settings},desktop-directories,dict,doc,fonts,empty,fontsmisc,games,ghostscript{,/conf.d},gnome,icons,idl,mime-info,misc,omf,pixmaps,ppd,sounds,themes,xsessions,X11}
+mkdir -p %{buildroot}%{_datadir}/{aclocal,appdata,applications,augeas,backgrounds,color/{icc,cmms,settings},desktop-directories,dict,doc,fonts,empty,fontsmisc,games,icons,idl,mime-info,misc,omf,pixmaps,sounds,themes,xsessions,X11}
 mkdir -p %{buildroot}%{_infodir}
 # games
 mkdir -p %{buildroot}{%{_gamesbindir},%{_gamesdatadir}}
 mkdir -p %{buildroot}%{_prefix}/lib/games
 %if "%{_lib}" == "lib64"
-mkdir -p %{buildroot}%{_libdir}/lib/games
+mkdir -p %{buildroot}%{_libdir}/games
 %endif
 
 mkdir -p %{buildroot}%{_libdir}/{gcc-lib,pm-utils/{module.d,power.d,sleep.d}}
 mkdir -p %{buildroot}%{_prefix}/lib/gcc-lib
-# deprecated..?
-mkdir -p %{buildroot}%{_prefix}/lib/X11
+mkdir -p %{buildroot}%{_prefix}/lib/modules
 mkdir -p %{buildroot}%{_prefix}/lib/debug/{bin,lib,usr/.dwz,sbin}
 %if "%{_lib}" == "lib64"
 mkdir -p %{buildroot}%{_prefix}/lib/debug/%{_lib}
 %endif
-%ifarch x86_64
+%ifarch %{x86_64}
 mkdir -p %{buildroot}%{_prefix}/lib/debug/libx32
 %endif
 
@@ -90,7 +88,7 @@ mkdir -p %{buildroot}%{_prefix}/local/{bin,doc,etc,games,lib,sbin,src,libexec,in
 %if "%{_lib}" == "lib64"
 mkdir -p %{buildroot}%{_prefix}/local/%{_lib}
 %endif
-%ifarch x86_64
+%ifarch %{x86_64}
 mkdir -p %{buildroot}%{_prefix}/local/libx32
 %endif
 
@@ -113,6 +111,15 @@ ln -srf %{buildroot}/run %{buildroot}%{_var}/run
 ln -srf %{buildroot}/run/lock %{buildroot}%{_var}/lock
 ln -srf %{buildroot}%{_tmppath} %{buildroot}%{_prefix}/tmp
 ln -srf %{buildroot}%{_var}/spool/mail %{buildroot}%{_var}/mail
+ln -srf %{buildroot}%{_bindir} %{buildroot}/bin
+ln -srf %{buildroot}%{_sbindir} %{buildroot}/sbin
+ln -srf %{buildroot}%{_prefix}/lib %{buildroot}/lib
+%if "%{_lib}" != "lib"
+ln -srf %{buildroot}%{_prefix}/%{_lib} %{buildroot}/%{_lib}
+%endif
+%ifarch %{x86_64}
+ln -srf %{buildroot}%{_prefix}/libx32 %{buildroot}/libx32
+%endif
 
 sed -n -f %{SOURCE2} %{_datadir}/xml/iso-codes/iso_639.xml \
   > iso_639.tab
@@ -180,9 +187,81 @@ done
 --# here, to place the files from other packages in the right locations.
 --# When our rpm is unpacked by cpio, it will set all permissions and modes
 --# later.
-posix.mkdir("/bin")
-posix.mkdir("/sbin")
-posix.mkdir("/%{_lib}")
+
+--# Merge files in a source directory to a destination directory - unless
+--# they already exist in the destination directory. Also, if they exist in
+--# both directories and one is a symlink, keep the "good" one. Useful when
+--# collecting multiple previous directories (e.g. /bin and /usr/bin) in
+--# one...
+local function mergedirs(source, dest)
+	for i,p in pairs(posix.dir(source)) do
+		if(p ~= "." and p ~= "..") then
+			local keep=""
+			local sts=posix.stat(source .. "/" .. p)
+			local std=posix.stat(dest .. "/" .. p)
+			if (sts and not std) then
+				keep=source
+			elseif (std and not sts) then
+				--# Can't really happen given it was in posix.dir(),
+				--# but let's err on the safe side
+				keep=dest
+			else
+				if (sts.type == "link" and std.type == "link") then
+					--# Link in both... Let's see if either one
+					--# is dangling first...
+					local rls=posix.readlink(source .. "/" .. p)
+					local rld=posix.readlink(dest .. "/" .. p)
+					local wd=posix.getcwd()
+					posix.chdir(source)
+					if (not posix.stat(rls)) then
+						--# Dangling in source -- keep dest
+						keep=dest
+					end
+					posix.chdir(dest)
+					if (not posix.stat(rld)) then
+						--# Dangling in dest -- keep source
+						keep=source
+					end
+					posix.chdir(wd)
+					if(keep == "") then
+						if (string.find(rls, dest) == 1) then
+							--# Source is symlink to dest -- keep dest
+							keep=dest
+						elseif (string.find(rld, source) == 1) then
+							--# Dest is symlink to source -- keep source
+							keep=source
+
+						else
+							--# Last resort, let's keep a symlink that
+							--# doesn't go outside of the directory first
+							--# and default to keeping dest if we're
+							--# still unsure
+							if (string.find(rls, "../") ~= 1 and string.find(rls, "/") ~= 1) then
+								keep=source
+							else
+								keep=dest
+							end
+						end
+					end
+				elseif (sts.type == "link") then
+					--# Link in source, file in dest -- keep the file
+					keep=dest
+				else
+					--# Link in dest, file in source -- keep the file
+					keep=source
+				end
+				if(keep == source) then
+					posix.unlink(dest .. "/" .. p)
+					os.rename(source .. "/" .. p, dest .. "/" .. p)
+				else
+					posix.unlink(source .. "/" .. p)
+					os.rename(dest .. "/" .. p, source .. "/" .. p)
+				end
+			end
+		end
+	end
+	posix.rmdir(source)
+end
 posix.mkdir("/usr")
 posix.mkdir("/usr/bin")
 posix.mkdir("/usr/sbin")
@@ -197,12 +276,33 @@ posix.chmod("/sys", 0555)
 posix.mkdir("/var")
 posix.symlink("../run", "/var/run")
 posix.symlink("../run/lock", "/var/lock")
+
+mergedirs("/bin", "/usr/bin")
+mergedirs("/sbin", "/usr/bin")
+mergedirs("/usr/sbin", "/usr/bin")
+mergedirs("/lib", "/usr/lib")
+%if "%{_lib}" != "lib"
+mergedirs("/%{_lib}", "/usr/%{_lib}")
+%endif
+%ifarch %{x86_64}
+mergedirs("/libx32", "/usr/libx32")
+%endif
+
+posix.symlink("usr/bin", "/bin")
+posix.symlink("usr/bin", "/sbin")
+posix.symlink("usr/bin", "/usr/sbin")
+posix.symlink("usr/lib", "/lib")
+%if "%{_lib}" != "lib"
+posix.symlink("usr/%{_lib}", "/%{_lib}")
+%endif
+%ifarch %{x86_64}
+posix.symlink("usr/libx32", "/libx32")
+%endif
 return 0
 
 %files -f filelist
 %defattr(0755,root,root,-)
 %dir %attr(555,root,root) /
-%dir /bin
 %attr(555,root,root) /boot
 %dir /dev
 %dir %{_sysconfdir}
@@ -221,14 +321,6 @@ return 0
 %dir %{_sysconfdir}/X11
 %dir /home
 %dir /initrd
-%dir /lib
-%dir /lib/modules
-%if "%{_lib}" == "lib64"
-%dir /%{_lib}
-%endif
-%ifarch x86_64
-%dir /libx32
-%endif
 %dir /media
 %dir /mnt
 %dir /opt
@@ -236,7 +328,6 @@ return 0
 %dir %attr(550,root,root) /root
 %dir %{_rundir}
 %dir %attr(775,root,uucp) /run/lock
-%dir /sbin
 %dir /srv
 %ghost %attr(555,root,root) /sys
 %dir %attr(1777,root,root) /tmp
@@ -248,17 +339,18 @@ return 0
 %dir %{_prefix}/lib/debug
 %dir %{_prefix}/lib/debug/bin
 %dir %{_prefix}/lib/debug/lib
+%dir %{_prefix}/lib/modules
 %if "%{_lib}" == "lib64"
 %dir %{_prefix}/lib/debug/%{_lib}
 %endif
-%ifarch x86_64
+%ifarch %{x86_64}
 %dir %{_prefix}/lib/debug/libx32
 %endif
 %dir %{_prefix}/lib/debug/%{_prefix}
 %dir %{_prefix}/lib/debug/%{_prefix}/.dwz
 %dir %{_prefix}/lib/debug/sbin
 %dir %attr(555,root,root) %{_prefix}/lib/games
-%ifarch x86_64
+%ifarch %{x86_64}
 %dir %attr(555,root,root) %{_prefix}/libx32
 %endif
 %if "%{_lib}" == "lib64"
@@ -278,7 +370,7 @@ return 0
 %if "%{_lib}" == "lib64"
 %dir %{_prefix}/local/%{_lib}
 %endif
-%ifarch x86_64
+%ifarch %{x86_64}
 %dir %{_prefix}/local/libx32
 %endif
 %dir %{_prefix}/local/sbin
@@ -311,9 +403,6 @@ return 0
 %dir %{_datadir}/fonts
 %dir %{_datadir}/fontsmisc
 %dir %{_datadir}/games
-%dir %{_datadir}/ghostscript
-%dir %{_datadir}/ghostscript/conf.d
-%dir %{_datadir}/gnome
 %dir %{_datadir}/icons
 %dir %{_datadir}/idl
 %dir %{_datadir}/mime-info
@@ -360,3 +449,12 @@ return 0
 /var/run
 %{_prefix}/tmp
 %{_var}/lock
+/sbin
+/bin
+/lib
+%if "%{_lib}" != "lib"
+/%{_lib}
+%endif
+%ifarch %{x86_64}
+/libx32
+%endif
