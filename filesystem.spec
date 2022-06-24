@@ -318,26 +318,35 @@ posix.symlink("../run/lock", "/var/lock")
 local st=posix.stat("/bin")
 if st and st.type == "directory" then
 	mergedirs("/bin", "/usr/bin")
+end
+local st=posix.stat("/sbin")
+if st and st.type == "directory" then
 	mergedirs("/sbin", "/usr/bin")
+end
+local st=posix.stat("/usr/sbin")
+if st and st.type == "directory" then
 	mergedirs("/usr/sbin", "/usr/bin")
+end
+local st=posix.stat("/lib")
+if st and st.type == "directory" then
 	mergedirs("/lib", "/usr/lib")
+end
 %if "%{_lib}" != "lib"
+local st=posix.stat("/%{_lib}")
+if st and st.type == "directory" then
 	mergedirs("/%{_lib}", "/usr/%{_lib}")
+end
 %endif
 %ifarch %{x86_64}
+local st=posix.stat("/libx32")
+if st and st.type == "directory" then
 	mergedirs("/libx32", "/usr/libx32")
-%endif
-else
-	if st then
-		print("Skipping mergedirs because /bin is a " .. st.type)
-	else
-		print("Skipping mergedirs because /bin doesn't exist")
-	end
 end
+%endif
 
 posix.symlink("usr/bin", "/bin")
 posix.symlink("usr/bin", "/sbin")
-posix.symlink("usr/bin", "/usr/sbin")
+posix.symlink("bin", "/usr/sbin")
 posix.symlink("usr/lib", "/lib")
 %if "%{_lib}" != "lib"
 posix.symlink("usr/%{_lib}", "/%{_lib}")
