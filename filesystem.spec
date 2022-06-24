@@ -329,6 +329,11 @@ if st and st.type == "directory" then
 end
 local st=posix.stat("/lib")
 if st and st.type == "directory" then
+	--# /lib/modules should definitely be preferred
+	--# over the typically empty /usr/lib/modules...
+	posix.rmdir("/usr/lib/modules")
+	--# If it wasn't empty, move it aside
+	posix.rename("/usr/lib/modules", "/usr/lib/modules.PRE-USRMERGE")
 	mergedirs("/lib", "/usr/lib")
 end
 %if "%{_lib}" != "lib"
@@ -361,7 +366,6 @@ return 0
 %files -f filelist
 %defattr(0755,root,root,-)
 %dir %attr(555,root,root) /
-%ghost /bin.rpmmoved
 %attr(555,root,root) /boot
 %dir /dev
 %dir %{_sysconfdir}
@@ -412,7 +416,7 @@ return 0
 %ifarch %{x86_64}
 %dir %attr(555,root,root) %{_prefix}/libx32
 %endif
-%if "%{_lib}" == "lib64"
+%if "%{_lib}" != "lib"
 %dir %attr(555,root,root) %{_prefix}/%{_lib}
 %endif
 %if "%{_lib}" == "lib"
@@ -426,7 +430,7 @@ return 0
 %dir %{_prefix}/local/etc
 %dir %{_prefix}/local/games
 %dir %{_prefix}/local/lib
-%if "%{_lib}" == "lib64"
+%if "%{_lib}" != "lib"
 %dir %{_prefix}/local/%{_lib}
 %endif
 %ifarch %{x86_64}
