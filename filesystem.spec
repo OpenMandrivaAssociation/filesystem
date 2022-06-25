@@ -214,16 +214,27 @@ local function mergedirs(source, dest)
 	print("=== mergedirs " .. source .. " -> " .. dest)
 	local src=posix.stat(source)
 	if not src then
-		print("=== " .. source .. " doesn't exist")
+		--# Source doesn't exist
 		return
 	end
 	if src.type ~= "directory" then
-		print("=== " .. source .. " is not a directory " .. src.type)
+		--# Source is already a symlink
 		return
 	end
 	if pairs(posix.dir(source)) == nil then
-		print("=== source dir doesn't exist")
+		--# Nothing in the source directory
+		posix.rmdir(source)
 		return
+	end
+	local d=posix.stat(dest)
+	if not d then
+		--# Destination doesn't exist yet, may be a
+		--# fresh install
+		posix.mkdir(dest)
+	elseif d.type == "link" then
+		--# This really shouldn't happen, but let's be safe
+		posix.unlink(dest)
+		posix.mkdir(dest)
 	end
 	for i,p in pairs(posix.dir(source)) do
 		if(p ~= "." and p ~= "..") then
@@ -299,7 +310,9 @@ local function mergedirs(source, dest)
 		end
 	end
 	posix.rmdir(source)
-	print("=== mergedirs " .. source .. " -> " .. dest .. " done")
+	--# Just in case rmdir failed (e.g. because of a file left
+	--# for whatever reason)
+	movedir(source)
 end
 posix.mkdir("/usr")
 posix.mkdir("/usr/bin")
@@ -334,6 +347,7 @@ if st and st.type == "directory" then
 	posix.rmdir("/usr/lib/modules")
 	--# If it wasn't empty, move it aside
 	os.rename("/usr/lib/modules", "/usr/lib/modules.PRE-USRMERGE")
+	os.rename("/lib/modules", "/usr/lib/modules")
 	mergedirs("/lib", "/usr/lib")
 end
 %if "%{_lib}" != "lib"
@@ -360,7 +374,6 @@ posix.symlink("usr/%{_lib}", "/%{_lib}")
 posix.symlink("usr/libx32", "/libx32")
 %endif
 print("Lua pretrans script reached end")
-os.execute("/usr/bin/ls", "-l", "/")
 return 0
 
 %files -f filelist
