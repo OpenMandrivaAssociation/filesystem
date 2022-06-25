@@ -333,7 +333,7 @@ if st and st.type == "directory" then
 	--# over the typically empty /usr/lib/modules...
 	posix.rmdir("/usr/lib/modules")
 	--# If it wasn't empty, move it aside
-	posix.rename("/usr/lib/modules", "/usr/lib/modules.PRE-USRMERGE")
+	os.rename("/usr/lib/modules", "/usr/lib/modules.PRE-USRMERGE")
 	mergedirs("/lib", "/usr/lib")
 end
 %if "%{_lib}" != "lib"
