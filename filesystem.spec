@@ -2,7 +2,7 @@
 
 Name:		filesystem
 Version:	4.4
-Release:	1
+Release:	2
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -238,7 +238,7 @@ local function mergedirs(source, dest)
 	end
 	for i,p in pairs(posix.dir(source)) do
 		if(p ~= "." and p ~= "..") then
-			local keep=""
+			local keep=nil
 			local sts=posix.stat(source .. "/" .. p)
 			local std=posix.stat(dest .. "/" .. p)
 			if (sts and not std) then
@@ -265,7 +265,7 @@ local function mergedirs(source, dest)
 						keep=source
 					end
 					posix.chdir(wd)
-					if(keep == "") then
+					if not keep then
 						if (string.find(rls, dest) == 1) then
 							--# Source is symlink to dest -- keep dest
 							keep=dest
@@ -292,13 +292,13 @@ local function mergedirs(source, dest)
 					--# Link in dest, file in source -- keep the file
 					keep=source
 				end
-				if(keep == source) then
-					posix.unlink(dest .. "/" .. p)
-					os.rename(source .. "/" .. p, dest .. "/" .. p)
-				else
-					posix.unlink(source .. "/" .. p)
-					os.rename(dest .. "/" .. p, source .. "/" .. p)
-				end
+			end
+			if(keep == source) then
+				posix.unlink(dest .. "/" .. p)
+				os.rename(source .. "/" .. p, dest .. "/" .. p)
+			else
+				posix.unlink(source .. "/" .. p)
+				os.rename(dest .. "/" .. p, source .. "/" .. p)
 			end
 		end
 	end
