@@ -373,6 +373,13 @@ posix.symlink("usr/%{_lib}", "/%{_lib}")
 %ifarch %{x86_64}
 posix.symlink("usr/libx32", "/libx32")
 %endif
+%ifarch %{aarch64}
+-- This really should not be done here, but since
+-- EVERYTHING relies on finding ld-linux-aarch64.so.1,
+-- better to face a dangling symlink than the side
+-- effects of scripts not being executed
+posix.symlink("../usr/lib64/ld-linux-aarch64.so.1", "/lib/ld-linux-aarch64.so.1")
+%endif
 print("Lua pretrans script reached end")
 return 0
 
