@@ -2,7 +2,7 @@
 
 Name:		filesystem
 Version:	4.4
-Release:	2
+Release:	3
 Summary:	The basic directory layout for a Linux system
 License:	Public Domain
 Group:		System/Base
@@ -380,8 +380,31 @@ posix.symlink("usr/libx32", "/libx32")
 -- effects of scripts not being executed
 posix.symlink("../usr/lib64/ld-linux-aarch64.so.1", "/lib/ld-linux-aarch64.so.1")
 %endif
-print("Lua pretrans script reached end")
 return 0
+
+%triggerpostun -- filesystem < 4.4 -p <lua>
+-- Removing the old package (owning directories etc)
+-- might remove the symlinks we have created earlier.
+-- Create them again to be on the safe side (the lua
+-- calls will just fail silently if the links are
+-- already there).
+posix.symlink("usr/bin", "/bin")
+posix.symlink("usr/bin", "/sbin")
+posix.symlink("bin", "/usr/sbin")
+posix.symlink("usr/lib", "/lib")
+%if "%{_lib}" != "lib"
+posix.symlink("usr/%{_lib}", "/%{_lib}")
+%endif
+%ifarch %{x86_64}
+posix.symlink("usr/libx32", "/libx32")
+%endif
+%ifarch %{aarch64}
+-- This really should not be done here, but since
+-- EVERYTHING relies on finding ld-linux-aarch64.so.1,
+-- better to face a dangling symlink than the side
+-- effects of scripts not being executed
+posix.symlink("../usr/lib64/ld-linux-aarch64.so.1", "/lib/ld-linux-aarch64.so.1")
+%endif
 
 %files -f filelist
 %defattr(0755,root,root,-)
